@@ -200,6 +200,9 @@ pub fn try_extract_webpack_magic_comment(
                 );
               }
             }
+            "webpackInclude" => {
+              panic!("🐷🐷🐷");
+            }
             _ => {
               // TODO: other magic comment
             }
