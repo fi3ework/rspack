@@ -1275,7 +1275,7 @@ impl ExportInfoId {
     mg.get_export_info_mut_by_id(self).set_used_name(name)
   }
 
-  pub(crate) fn find_target(
+  pub fn find_target(
     &self,
     mg: &ModuleGraph,
     valid_target_module_filter: Arc<impl Fn(&ModuleIdentifier) -> bool>,

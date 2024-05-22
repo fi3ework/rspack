@@ -275,3 +275,27 @@ impl JavascriptModulesPluginPluginDrive {
     Ok(None)
   }
 }
+
+// === ModuleConcatenationPluginPlugin ===
+
+// pub type ExportsDefinitionArgs = HashMap<String, String>;
+// pub type ExportsDefinitionOutput = Result<Option<bool>>;
+// pub type BoxModuleConcatenationPluginPlugin =
+//   Box<dyn ModuleConcatenationPluginPlugin + Send + Sync>;
+
+// pub struct ModuleConcatenationPluginPluginDrive {
+//   plugins: Vec<ModuleConcatenationPluginPlugin>,
+// }
+
+// #[async_trait]
+// pub trait ModuleConcatenationPluginPlugin {
+//   async fn exports_definitions(&self, _args: &ExportsDefinitionArgs) -> ExportsDefinitionOutput {
+//     Ok(None)
+//   }
+// }
+
+// impl ModuleConcatenationPluginPluginDrive {
+//   pub async fn exports_definitions(&self, args: &ExportsDefinitionArgs) -> ExportsDefinitionOutput {
+//     Ok(None)
+//   }
+// }
