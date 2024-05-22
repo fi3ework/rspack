@@ -3,8 +3,8 @@
 exports[`statsOutput statsOutput/auxiliary-files-test should print correct stats for 1`] = `
 "PublicPath: auto
 asset a09d8e0f399c215faa79.png 7 bytes {909} [emitted] [from: raw.png] (name: main)
-asset bundle.js 2.58 KiB {909} [emitted] (name: main)
-Entrypoint main 2.58 KiB = bundle.js
+asset bundle.js 2.46 KiB {909} [emitted] (name: main)
+Entrypoint main 2.46 KiB = bundle.js
 chunk {909} bundle.js (main) [entry]
   ./raw.png [193] {909}
     [no exports]
@@ -125,8 +125,8 @@ Rspack compiled with 2 errors"
 exports[`statsOutput statsOutput/limit-chunk-count-plugin should print correct stats for 1`] = `
 "1 chunks:
   PublicPath: auto
-  asset bundle1.js 3.69 KiB [emitted] (name: main)
-  Entrypoint main 3.69 KiB = bundle1.js
+  asset bundle1.js 3.57 KiB [emitted] (name: main)
+  Entrypoint main 3.57 KiB = bundle1.js
   chunk bundle1.js (main) <{909}> >{909}< [entry]
     ./b.js
     ./c.js
@@ -138,8 +138,8 @@ exports[`statsOutput statsOutput/limit-chunk-count-plugin should print correct s
 2 chunks:
   PublicPath: auto
   asset 76.bundle2.js 497 bytes [emitted] (name: c)
-  asset bundle2.js 10.3 KiB [emitted] (name: main)
-  Entrypoint main 10.3 KiB = bundle2.js
+  asset bundle2.js 10.2 KiB [emitted] (name: main)
+  Entrypoint main 10.2 KiB = bundle2.js
   chunk 76.bundle2.js (c) <{76}> <{909}> >{76}<
     ./c.js
     ./d.js
@@ -153,8 +153,8 @@ exports[`statsOutput statsOutput/limit-chunk-count-plugin should print correct s
   PublicPath: auto
   asset 345.bundle3.js 186 bytes [emitted]
   asset 76.bundle3.js 387 bytes [emitted] (name: c)
-  asset bundle3.js 10.3 KiB [emitted] (name: main)
-  Entrypoint main 10.3 KiB = bundle3.js
+  asset bundle3.js 10.2 KiB [emitted] (name: main)
+  Entrypoint main 10.2 KiB = bundle3.js
   chunk 345.bundle3.js <{76}>
     ./d.js
     ./e.js
@@ -170,8 +170,8 @@ exports[`statsOutput statsOutput/limit-chunk-count-plugin should print correct s
   asset 697.bundle4.js 130 bytes [emitted]
   asset 753.bundle4.js 130 bytes [emitted]
   asset 76.bundle4.js 387 bytes [emitted] (name: c)
-  asset bundle4.js 10.3 KiB [emitted] (name: main)
-  Entrypoint main 10.3 KiB = bundle4.js
+  asset bundle4.js 10.2 KiB [emitted] (name: main)
+  Entrypoint main 10.2 KiB = bundle4.js
   chunk 697.bundle4.js <{76}>
     ./e.js
   chunk 753.bundle4.js <{76}>
@@ -316,11 +316,11 @@ runtime modules 12 modules
 ./index.js
 
 ERROR in × asset size limit: The following asset(s) exceed the recommended size limit (244.141 KiB). This can impact web performance.Assets:
-  │   main.js (303.479 KiB)
+  │   main.js (303.354 KiB)
 
 
 ERROR in × entrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244.141 KiB). This can impact web performance.Entrypoints:
-  │   main (303.479 KiB)
+  │   main (303.354 KiB)
   │       main.js
 
 
@@ -405,8 +405,8 @@ webpack/runtime/define_property_getters"
 
 exports[`statsOutput statsOutput/runtime-specific-exports should print correct stats for 1`] = `
 "PublicPath: auto
-asset main.js 1.8 KiB [emitted] (name: main)
-Entrypoint main 1.8 KiB = main.js
+asset main.js 1.67 KiB [emitted] (name: main)
+Entrypoint main 1.67 KiB = main.js
 ./math.js
   [exports: add, multiply]
   [only some exports used: add]
@@ -421,8 +421,8 @@ Rspack x.x.x compiled successfully in X s (df258688ac5f176fb388)"
 
 exports[`statsOutput statsOutput/side-effects-bailouts should print correct stats for 1`] = `
 "PublicPath: auto
-asset main.js 1.86 KiB {909} [emitted] (name: main)
-Entrypoint main 1.86 KiB = main.js
+asset main.js 1.73 KiB {909} [emitted] (name: main)
+Entrypoint main 1.73 KiB = main.js
 chunk {909} main.js (main) [entry]
   ./lib.js [467] {909}
     [exports: test]

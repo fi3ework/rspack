@@ -25,8 +25,8 @@ module.exports = {
 		expect(stats?.toJson(statsOptions)).toMatchSnapshot();
 		expect(stats?.toString(statsOptions)).toMatchInlineSnapshot(`
 		"PublicPath: auto
-		asset main.js 714 bytes [emitted] (name: main)
-		Entrypoint main 714 bytes = main.js
+		asset main.js 704 bytes [emitted] (name: main)
+		Entrypoint main 704 bytes = main.js
 		runtime modules 3 modules
 		./fixtures/esm/a.js
 		  [exports: a, default]
