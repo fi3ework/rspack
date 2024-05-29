@@ -19,14 +19,11 @@ Check the current Node.js version with the following command:
 node -v
 ```
 
-If you do not have Node.js installed in your current environment, you can use [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) to install it.
+If you do not have Node.js installed in your current environment, you can use [fnm](https://github.com/Schniz/fnm)(recommened) or [nvm](https://github.com/nvm-sh/nvm) or to install it.
 
-Here is an example of how to install via nvm:
+Here is an example of how to install via fnm:
 
 ```bash
-# Install Node.js LTS
-nvm install 20 --lts
-
-# Switch to Node.js LTS
-nvm use 20
+# cd to Rspack repository root, then
+fnm use
 ```

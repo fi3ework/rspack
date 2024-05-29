@@ -19,14 +19,11 @@ Rspack 使用 [Rust](https://rust-lang.org/) 和 [NAPI-RS](https://napi.rs/) 构
 node -v
 ```
 
-如果你当前环境中没有安装 Node.js，你可以使用 [nvm](https://github.com/nvm-sh/nvm) 或者 [fnm](https://github.com/Schniz/fnm) 来安装它。
+如果你当前环境中没有安装 Node.js，你可以使用 [fnm](https://github.com/Schniz/fnm)（推荐）或 [nvm](https://github.com/nvm-sh/nvm) 来安装它。
 
-这里有一个如何通过 nvm 安装的示例:
+这里有一个如何通过 fnm 安装的示例:
 
 ```bash
-# Install Node.js LTS
-nvm install 20 --lts
-
-# Switch to Node.js LTS
-nvm use 20
+# cd 到 Rspack 仓库根目录，然后
+fnm use
 ```
