@@ -319,7 +319,7 @@ pub fn harmony_import_dependency_get_linking_error<T: ModuleDependency>(
             " (possible exports unknown)".to_string()
           };
           let msg = format!(
-            "export {} {} was not found in '{}'{more_info}",
+            "export {} {} was not found1 in '{}'{more_info}",
             ids
               .iter()
               .take(pos)
@@ -334,7 +334,7 @@ pub fn harmony_import_dependency_get_linking_error<T: ModuleDependency>(
         maybe_exports_info = export_info.id.get_nested_exports_info(module_graph);
       }
       let msg = format!(
-        "export {} {} was not found in '{}'",
+        "export {} {} was not found2 in '{}'",
         ids
           .iter()
           .map(|id| format!("'{id}'"))

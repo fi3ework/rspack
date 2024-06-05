@@ -5,9 +5,10 @@ use std::sync::Arc;
 use rspack_core::rspack_sources::{ConcatSource, RawSource, SourceExt};
 use rspack_core::{
   property_access, to_identifier, ApplyContext, ChunkUkey, CodeGenerationExportsFinalNames,
-  Compilation, CompilationParams, CompilerCompilation, CompilerOptions,
-  ConcatenatedModuleExportsDefinitions, FindTargetRetEnum, FindTargetRetValue, LibraryOptions,
-  ModuleIdentifier, MutableModuleGraph, Plugin, PluginContext,
+  Compilation, CompilationParams, CompilerCompilation, CompilerOptions, ConcatenatedModule,
+  ConcatenatedModuleExportsDefinitions, DependencyType, ExportInfoProvided, FindTargetRetEnum,
+  FindTargetRetValue, LibraryOptions, ModuleIdentifier, MutableModuleGraph, Plugin, PluginContext,
+  ProvidedExports,
 };
 use rspack_error::{error_bail, Result};
 use rspack_hook::{plugin, plugin_hook};
@@ -74,7 +75,69 @@ impl JavascriptModulesPluginPlugin for ModernModuleLibraryJavascriptModulesPlugi
     let mut exports = vec![];
 
     let exports_info = module_graph.get_exports_info(&args.module);
+    let exports_info_ids = module_graph.get_exports_info(&args.module).id;
+
+    // get atoms from module
+    let module = module_graph.module_by_identifier(&args.module).unwrap();
+    println!("啊啊 {:?}", module);
+
+    // if module is ConcatenatedModule, get the first module
+    if let Some(concrete) = module.downcast_ref::<ConcatenatedModule>() {
+      println!("啊啊 111111啊啊啊啊 ");
+      // let inner_module = &concrete.root_module_ctxt.id;
+      // for inner_module in inner_modules {
+      let inner_module = module_graph
+        .module_by_identifier(&concrete.root_module_ctxt.id)
+        .unwrap();
+      let inner_deps = inner_module.get_dependencies();
+      for dep in inner_deps {
+        let dep = module_graph.dependency_by_id(&dep).unwrap();
+        println!("info! {:?}", *dep.dependency_type());
+        if ((*dep.dependency_type() == DependencyType::EsmImportSpecifier)
+          | (*dep.dependency_type() == DependencyType::EsmExportImportedSpecifier))
+        {
+          let dep_ids = dep.get_ids(&module_graph);
+          println!("info!!! {:?} {:?}", dep.dependency_type(), dep_ids);
+          for id in dep_ids {
+            let export_info = exports_info_ids.get_read_only_export_info(&id, &module_graph);
+            let ppp = export_info.provided;
+            println!("🔥: {:?} --- {:?}", id, ppp);
+          }
+        }
+      }
+      // }
+    }
+
+    // let deps = module.get_dependencies();
+    // for dep in deps {
+    //   let dep = module_graph.dependency_by_id(&dep).unwrap();
+    //   println!("info! {:?}", *dep.dependency_type());
+
+    //   if (*dep.dependency_type() == DependencyType::EsmExportSpecifier) {
+    //     // let dep_ids = dep.get_ids(&module_graph);
+    //     // println!("info!!! {:?} {:?}", dep.dependency_type(), dep_ids);
+    //     // for id in dep_ids {
+    //     //   let export_info = exports_info_ids.get_read_only_export_info(&id, &module_graph);
+    //     //   let ppp = export_info.provided;
+    //     //   println!("info: {:?} --- {:?}", id, ppp);
+    //     // }
+    //   }
+    // }
+
+    // let atoms = &args.module.
+
+    // let atom_id = exports_info_ids();
+
     for id in exports_info.get_ordered_exports() {
+      // let info = exports_info_ids.get_read_only_export_info("", &module_graph);
+
+      // println!("啊？{:?}", info.provided);
+      // if matches!(info.provided, Some(ExportInfoProvided::False)) {
+      //   println!("exports_info.provided is false, {}", id.to_string());
+      //   //
+      //   // return Ok(Some(source.boxed()));
+      // }
+
       // let target = id.
       // let x = module_graph.mut
       let mut should_continue = false;

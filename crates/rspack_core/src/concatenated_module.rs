@@ -370,8 +370,8 @@ impl ModuleInfo {
 pub struct ConcatenatedModule {
   id: ModuleIdentifier,
   /// Used to implementing [Module] trait for [ConcatenatedModule]
-  root_module_ctxt: RootModuleContext,
-  modules: Vec<ConcatenatedInnerModule>,
+  pub root_module_ctxt: RootModuleContext,
+  pub modules: Vec<ConcatenatedInnerModule>,
   runtime: Option<RuntimeSpec>,
 
   blocks: Vec<AsyncDependenciesBlockIdentifier>,
