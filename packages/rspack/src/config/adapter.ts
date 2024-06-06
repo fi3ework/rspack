@@ -642,7 +642,8 @@ function getRawJavascriptParserOptions(
 			parser.reexportExportsPresence === false
 				? "false"
 				: parser.reexportExportsPresence,
-		strictExportPresence: parser.strictExportPresence ?? false
+		strictExportPresence: parser.strictExportPresence ?? false,
+		strict: parser.strict
 	};
 }
 

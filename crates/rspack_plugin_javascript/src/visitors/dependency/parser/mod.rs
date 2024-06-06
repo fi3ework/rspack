@@ -328,6 +328,7 @@ impl<'parser> JavascriptParser<'parser> {
       if !compiler_options.builtins.define.is_empty() {
         plugins.push(Box::<parser_plugin::DefinePlugin>::default());
       }
+      plugins.push(Box::new(parser_plugin::StrictPlugin));
       plugins.push(Box::new(parser_plugin::WebpackIsIncludedPlugin));
       plugins.push(Box::new(parser_plugin::ExportsInfoApiPlugin));
       plugins.push(Box::new(parser_plugin::APIPlugin::new(
