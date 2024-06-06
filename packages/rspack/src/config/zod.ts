@@ -589,7 +589,8 @@ const javascriptParserOptions = z.strictObject({
 	exportsPresence: exportsPresence.optional(),
 	importExportsPresence: importExportsPresence.optional(),
 	reexportExportsPresence: reexportExportsPresence.optional(),
-	strictExportPresence: strictExportPresence.optional()
+	strictExportPresence: strictExportPresence.optional(),
+	strict: z.boolean().optional()
 });
 export type JavascriptParserOptions = z.infer<typeof javascriptParserOptions>;
 

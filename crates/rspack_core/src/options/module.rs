@@ -177,6 +177,7 @@ pub struct JavascriptParserOptions {
   pub import_exports_presence: Option<ExportPresenceMode>,
   pub reexport_exports_presence: Option<ExportPresenceMode>,
   pub strict_export_presence: bool,
+  pub strict: Option<bool>,
 }
 
 #[derive(Debug, Clone, MergeFrom)]
