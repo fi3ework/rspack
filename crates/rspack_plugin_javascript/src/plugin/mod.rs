@@ -1,5 +1,5 @@
 use std::collections::{HashMap, HashSet};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 pub mod api_plugin;
 mod drive;
@@ -11,7 +11,7 @@ pub mod inner_graph_plugin;
 mod mangle_exports_plugin;
 pub mod module_concatenation_plugin;
 mod side_effects_flag_plugin;
-use std::borrow::Cow;
+use std::borrow::{BorrowMut, Cow};
 use std::collections::hash_map::Entry;
 use std::hash::Hash;
 
@@ -37,7 +37,7 @@ use rspack_core::{BoxModule, IdentCollector};
 use rspack_error::Result;
 use rspack_hash::RspackHash;
 use rspack_hook::plugin;
-use rspack_identifier::IdentifierLinkedMap;
+use rspack_identifier::{Identifier, IdentifierLinkedMap};
 use rspack_util::diff_mode;
 use rspack_util::fx_hash::{BuildFxHasher, FxDashMap};
 pub use side_effects_flag_plugin::*;
@@ -52,10 +52,52 @@ use crate::runtime::{
 static COMPILATION_DRIVES_MAP: Lazy<FxDashMap<CompilationId, JavascriptModulesPluginPluginDrive>> =
   Lazy::new(Default::default);
 
+// TODO: 111
+#[derive(Debug, Default)]
+struct RenameModuleCache {
+  used_in_non_inlined: FxDashMap<String, Vec<Arc<ConcatenatedModuleIdent>>>,
+  inlined_modules_to_info: FxDashMap<String, InlinedModuleInfo>,
+}
+
+impl RenameModuleCache {
+  pub fn get_used_in_non_inlined(
+    &self,
+    source: &str,
+  ) -> Option<
+    dashmap::mapref::one::Ref<
+      '_,
+      std::string::String,
+      InlinedModuleInfo,
+      std::hash::BuildHasherDefault<rustc_hash::FxHasher>,
+    >,
+  > {
+    let x = self.inlined_modules_to_info.get(source);
+    x
+  }
+
+  pub fn get_used_in_non_inlined_mut(
+    &self,
+    source: &str,
+  ) -> Option<
+    dashmap::mapref::one::RefMut<
+      '_,
+      std::string::String,
+      Vec<Arc<ConcatenatedModuleIdent>>,
+      std::hash::BuildHasherDefault<rustc_hash::FxHasher>,
+    >,
+  > {
+    let x = self.used_in_non_inlined.get_mut(source);
+    x
+  }
+}
+
 #[plugin]
 #[derive(Debug, Default)]
-pub struct JsPlugin;
+pub struct JsPlugin {
+  inline_module_cache: RenameModuleCache,
+}
 
+#[derive(Debug, Clone)]
 struct InlinedModuleInfo {
   source: Arc<dyn Source>,
   module_scope_idents: Vec<Arc<ConcatenatedModuleIdent>>,
@@ -489,7 +531,9 @@ impl JsPlugin {
     &self,
     compilation: &Compilation,
     chunk_ukey: &ChunkUkey,
+    // cache: &mut RenameModuleCache,
   ) -> Result<BoxSource> {
+    println!("🐂");
     let drive = Self::get_compilation_drives(compilation);
     let chunk = compilation.chunk_by_ukey.expect_get(chunk_ukey);
     let supports_arrow_function = compilation
@@ -812,36 +856,60 @@ impl JsPlugin {
       });
 
       if is_inlined_module {
-        let mut module_scope_idents = Vec::new();
+        if let Some(reason) = self
+          .inline_module_cache
+          .get_used_in_non_inlined(&code.source().to_string())
+        {
+          inlined_modules_to_info.insert(code.source().to_string(), (*reason).clone());
+        } else {
+          let mut module_scope_idents = Vec::new();
 
-        for ident in collector.ids {
-          if ident.id.span.ctxt == global_ctxt
-            || ident.id.span.ctxt != module_ctxt
-            || ident.is_class_expr_with_ident
-          {
-            all_used_names.insert(ident.id.sym.to_string());
+          for ident in collector.ids {
+            if ident.id.span.ctxt == global_ctxt
+              || ident.id.span.ctxt != module_ctxt
+              || ident.is_class_expr_with_ident
+            {
+              all_used_names.insert(ident.id.sym.to_string());
+            }
+
+            if ident.id.span.ctxt == module_ctxt {
+              all_used_names.insert(ident.id.sym.to_string());
+              module_scope_idents.push(Arc::new(ident));
+            }
           }
 
-          if ident.id.span.ctxt == module_ctxt {
-            all_used_names.insert(ident.id.sym.to_string());
-            module_scope_idents.push(Arc::new(ident));
-          }
-        }
+          let ident: String = m.identifier().to_string();
 
-        let ident: String = m.identifier().to_string();
-        inlined_modules_to_info.insert(
-          ident,
-          InlinedModuleInfo {
-            source: code,
+          let info = InlinedModuleInfo {
+            source: code.clone(),
             module_scope_idents,
             used_in_non_inlined: Vec::new(),
-          },
-        );
+          };
+
+          self
+            .inline_module_cache
+            .inlined_modules_to_info
+            .insert(code.clone().source().to_string(), info.clone());
+
+          inlined_modules_to_info.insert(ident, info);
+        }
       } else {
-        for ident in collector.ids {
-          if ident.id.span.ctxt == global_ctxt {
-            all_used_names.insert(ident.id.sym.to_string());
-            non_inlined_module_through_idents.push(ident);
+        if let Some(reason) = self
+          .inline_module_cache
+          .get_used_in_non_inlined_mut(&code.source().to_string())
+        {
+          for ident in (*reason).iter() {
+            if ident.id.span.ctxt == global_ctxt {
+              all_used_names.insert(ident.id.sym.to_string());
+              non_inlined_module_through_idents.push(ident.deref().clone());
+            }
+          }
+        } else {
+          for ident in collector.ids {
+            if ident.id.span.ctxt == global_ctxt {
+              all_used_names.insert(ident.clone().id.sym.to_string());
+              non_inlined_module_through_idents.push(ident);
+            }
           }
         }
       }
