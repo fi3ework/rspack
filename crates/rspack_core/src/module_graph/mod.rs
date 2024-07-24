@@ -647,6 +647,19 @@ impl<'a> ModuleGraph<'a> {
       .map(|b| &**b)
   }
 
+  // pub fn block_by_id_mut(
+  //   &mut self,
+  //   block_id: &AsyncDependenciesBlockIdentifier,
+  // ) -> &&mut Option<Box<AsyncDependenciesBlock>> {
+  //   let mut x = self
+  //     .loop_partials(|p| p.blocks.get_mut(block_id).as_ref())
+  //     .expect("msg");
+
+  //   let p: &&mut Option<Box<AsyncDependenciesBlock>> = x;
+
+  //   p
+  // }
+
   pub fn block_by_id_expect(
     &self,
     block_id: &AsyncDependenciesBlockIdentifier,

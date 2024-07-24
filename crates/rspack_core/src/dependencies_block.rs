@@ -23,10 +23,14 @@ pub trait DependenciesBlock {
 
   fn get_blocks(&self) -> &[AsyncDependenciesBlockIdentifier];
 
-  // add default implementation
   fn clear_blocks(&mut self) {}
+  fn clear_block(&mut self, block: AsyncDependenciesBlockIdentifier) {}
 
   fn add_dependency_id(&mut self, dependency: DependencyId);
+
+  fn remove_dependency_id(&mut self, dependency: DependencyId) {}
+
+  fn remove_dep_in_blocks(&mut self, dependency: DependencyId) {}
 
   fn get_dependencies(&self) -> &[DependencyId];
 
@@ -170,11 +174,6 @@ impl AsyncDependenciesBlock {
     // self.blocks.push(block);
   }
 
-  // pub fn clear_blocks(&mut self) {
-  //   self.block_ids.clear();
-  //   self.blocks.clear();
-  // }
-
   pub fn take_blocks(&mut self) -> Vec<Box<AsyncDependenciesBlock>> {
     std::mem::take(&mut self.blocks)
   }
@@ -193,6 +192,12 @@ impl AsyncDependenciesBlock {
 }
 
 impl DependenciesBlock for AsyncDependenciesBlock {
+  fn remove_dep_in_blocks(&mut self, dependency: DependencyId) {
+    for block in &mut self.blocks {
+      block.remove_dependency_id(dependency);
+    }
+  }
+
   fn add_block_id(&mut self, _block: AsyncDependenciesBlockIdentifier) {
     unimplemented!("Nested block are not implemented");
     // self.block_ids.push(block);
@@ -203,13 +208,16 @@ impl DependenciesBlock for AsyncDependenciesBlock {
   }
 
   fn clear_blocks(&mut self) {
-    println!("😓 clear_blocks");
     self.block_ids.clear();
     self.blocks.clear();
   }
 
   fn add_dependency_id(&mut self, dependency: DependencyId) {
     self.dependency_ids.push(dependency)
+  }
+
+  fn remove_dependency_id(&mut self, dependency: DependencyId) {
+    self.dependency_ids.retain(|id| id != &dependency);
   }
 
   fn get_dependencies(&self) -> &[DependencyId] {

@@ -1,17 +1,19 @@
-use std::fmt::Debug;
+use std::{borrow::BorrowMut, fmt::Debug};
 
 use once_cell::sync::Lazy;
 use regex::Regex;
 use rspack_core::{
-  external_module, module, ApplyContext, AsyncDependenciesBlockIdentifier, BoxModule, Compilation,
-  CompilationFinishModules, CompilerOptions, ContextInfo, DependenciesBlock, Dependency,
-  DependencyLocation, ExternalItem, ExternalItemFnCtx, ExternalItemValue, ExternalModule,
-  ExternalRequest, ExternalRequestValue, ExternalType, ModuleDependency, ModuleExt,
-  ModuleFactoryCreateData, NormalModuleFactoryFactorize, Plugin, PluginContext,
+  ApplyContext, AsyncDependenciesBlockIdentifier, BoxModule, Compilation, CompilationFinishModules,
+  CompilerOptions, ContextInfo, DependenciesBlock, Dependency, DependencyLocation, ExternalItem,
+  ExternalItemFnCtx, ExternalItemValue, ExternalModule, ExternalRequest, ExternalRequestValue,
+  ExternalType, ModuleDependency, ModuleExt, ModuleFactoryCreateData, NormalModuleFactoryFactorize,
+  Plugin, PluginContext,
 };
 use rspack_error::Result;
 use rspack_hook::{plugin, plugin_hook};
-use rspack_plugin_javascript::dependency::ImportDependency;
+use rspack_plugin_javascript::{
+  dependency::ImportDependency, utils::mangle_exports::NUMBER_OF_IDENTIFIER_CONTINUATION_CHARS,
+};
 
 use crate::external_module_dependency::ExternalModuleDependency;
 
@@ -180,76 +182,48 @@ async fn factorize(&self, data: &mut ModuleFactoryCreateData) -> Result<Option<B
 async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
   let mut module_graph = compilation.get_module_graph_mut();
   let modules = module_graph.modules();
-  // map modules to module ids
   let module_ids = modules.keys().cloned().collect::<Vec<_>>();
-  let mut id_to_blocks = Vec::new();
+  let mut loop_infos = Vec::new();
+  let mut blocks_for_info = Vec::new();
 
   for module_id in module_ids {
     let module = module_graph.module_by_identifier(&module_id).unwrap();
     if let Some(external_module) = module.as_any().downcast_ref::<ExternalModule>() {
-      let user_request = external_module.user_request.clone();
       let request = external_module.request.clone();
       let connections = module_graph.get_incoming_connections(&module_id);
-      // map to connection ids
-      // let connection_ids = connections.iter().map(|c| c.id.clone()).collect::<Vec<_>>();
-      let mut ori_id_and_blocks = Vec::new();
       for connection in connections {
         let original_module_identifier = connection.original_module_identifier.as_ref().unwrap();
         let original_module = module_graph
           .module_by_identifier(original_module_identifier)
           .unwrap();
-        // deep clone block ids
-        let block_ids: Vec<_> = original_module
-          .get_blocks()
-          .into_iter()
-          .map(|b| b.0.clone())
-          .collect();
-        ori_id_and_blocks.push((
-          original_module_identifier.clone(),
-          block_ids.clone(),
-          connection.id,
-        ));
-      }
-      id_to_blocks.push((module_id, user_request, request, ori_id_and_blocks));
-    }
-  }
+        let block_ids: Vec<_> = original_module.get_blocks().iter().collect();
+        let connection_dep = module_graph
+          .dependency_by_id(&connection.dependency_id)
+          .expect("should have connection dependency");
 
-  for (_module_id, user_request, request, ori_id_and_blocks) in id_to_blocks {
-    let mut blocks_for_info = Vec::new();
-
-    for (ori_id, block_ids, connection_id) in ori_id_and_blocks.into_iter() {
-      for block_id in block_ids {
-        let block = module_graph
-          .block_by_id(&AsyncDependenciesBlockIdentifier(block_id.clone()))
-          .expect("should have block");
-
-        for dep_id in block.get_dependencies() {
-          let dep = module_graph.dependency_by_id(dep_id);
-
-          if let Some(dep) = dep {
-            if let Some(import_dependency) = dep.as_any().downcast_ref::<ImportDependency>() {
-              if import_dependency.request() == &user_request {
-                println!("🐷 dep: {:?}", dep);
-
-                if let ExternalRequest::Single(external_request_value) = request.clone() {
-                  let new_dep = ExternalModuleDependency::new(
-                    block.request().clone().unwrap().to_string(),
-                    external_request_value.primary,
-                    DependencyLocation {
-                      start: import_dependency.start,
-                      end: import_dependency.end,
-                      source: None,
-                    },
-                  );
-
-                  let info = (
-                    new_dep,
-                    ori_id.clone(),
-                    block_id.clone(),
-                    connection_id.clone(),
-                  );
-
-                  blocks_for_info.push(info);
+        if let Some(connection_dep) = connection_dep.as_any().downcast_ref::<ImportDependency>() {
+          let user_request = connection_dep.request().to_string();
+          for block_id in block_ids {
+            let block = module_graph
+              .block_by_id(block_id)
+              .expect("should have block");
+            let block_deps = block.get_dependencies();
+            for block_dep_id in block_deps {
+              let block_dep = module_graph.dependency_by_id(block_dep_id);
+              if let Some(dep) = block_dep {
+                if let Some(block_dep) = dep.as_any().downcast_ref::<ImportDependency>() {
+                  if block_dep.request() == user_request {
+                    loop_infos.push((
+                      user_request.clone(),
+                      request.clone(),
+                      original_module_identifier,
+                      connection.id.clone(),
+                      block_id,
+                      block_dep.start,
+                      block_dep.end,
+                      block_dep.id(),
+                    ));
+                  }
                 }
               }
             }
@@ -257,22 +231,50 @@ async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
         }
       }
     }
+  }
 
-    blocks_for_info
-      .iter()
-      .for_each(|(dep, ori_id, block_id, connection_id)| {
-        println!("🐷 dep: {:?}  id: {:?}", dep, ori_id);
-        module_graph.add_dependency(Box::new(dep.clone()) as Box<dyn rspack_core::Dependency>);
-        module_graph.revoke_connection(connection_id, true);
-        let orig_module = module_graph.module_by_identifier_mut(ori_id).unwrap();
-        orig_module.add_dependency_id(dep.id.clone());
-        // clear orig_module blocks
-        let blocks = orig_module.get_blocks().clone();
-        // for block in blocks {
-        // }
-        println!("🐴 get_blocks: {:#?}", orig_module.get_blocks());
-        orig_module.clear_blocks();
-      });
+  for (
+    user_request,
+    request,
+    original_module_identifier,
+    connection_id,
+    block_id,
+    start,
+    end,
+    block_dep_id,
+  ) in loop_infos
+  {
+    // if import_dependency.request() == user_request {
+    if let ExternalRequest::Single(external_request_value) = request.clone() {
+      let new_dep = ExternalModuleDependency::new(
+        user_request.to_string(),
+        external_request_value.primary,
+        DependencyLocation {
+          start,
+          end,
+          source: None,
+        },
+      );
+
+      let info = (
+        new_dep,
+        original_module_identifier.to_owned(),
+        block_id.clone(),
+        connection_id.clone(),
+        block_dep_id.clone(),
+      );
+
+      blocks_for_info.push(info);
+    }
+  }
+
+  for (dep, ori_id, block_id, connection_id, block_dep_id) in blocks_for_info {
+    module_graph.add_dependency(Box::new(dep.clone()) as Box<dyn rspack_core::Dependency>);
+    module_graph.revoke_connection(&connection_id, true);
+
+    let orig_module = module_graph.module_by_identifier_mut(&ori_id).unwrap();
+    orig_module.add_dependency_id(dep.id);
+    orig_module.clear_block(block_id);
   }
 
   Ok(())

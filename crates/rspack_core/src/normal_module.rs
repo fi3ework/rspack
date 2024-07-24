@@ -322,9 +322,14 @@ impl DependenciesBlock for NormalModule {
   }
 
   fn clear_blocks(&mut self) {
-    println!("😓 clear_blocks");
     self.blocks.clear();
   }
+
+  fn clear_block(&mut self, block: AsyncDependenciesBlockIdentifier) {
+    self.blocks.retain(|b| b != &block);
+  }
+
+  fn remove_dep_in_blocks(&mut self, dependency: DependencyId) {}
 
   fn add_dependency_id(&mut self, dependency: DependencyId) {
     self.dependencies.push(dependency)

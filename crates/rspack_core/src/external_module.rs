@@ -432,7 +432,7 @@ impl Module for ExternalModule {
       "system" => build_result.build_meta.exports_type = BuildMetaExportsType::Namespace,
       "module" => build_result.build_meta.exports_type = BuildMetaExportsType::Namespace,
       "script" | "promise" => build_result.build_meta.has_top_level_await = true,
-      "import" => {
+      "import" | "module-import" => {
         build_result.build_meta.has_top_level_await = true;
         build_result.build_meta.exports_type = BuildMetaExportsType::Namespace;
       }
