@@ -23,6 +23,9 @@ pub trait DependenciesBlock {
 
   fn get_blocks(&self) -> &[AsyncDependenciesBlockIdentifier];
 
+  // add default implementation
+  fn clear_blocks(&mut self) {}
+
   fn add_dependency_id(&mut self, dependency: DependencyId);
 
   fn get_dependencies(&self) -> &[DependencyId];
@@ -35,10 +38,10 @@ pub trait DependenciesBlock {
 #[derive(Derivative)]
 #[derivative(Debug, Clone)]
 pub struct DependencyLocation {
-  start: u32,
-  end: u32,
+  pub start: u32,
+  pub end: u32,
   #[derivative(Debug = "ignore")]
-  source: Option<Arc<SourceMap>>,
+  pub source: Option<Arc<SourceMap>>,
 }
 
 impl DependencyLocation {
@@ -80,7 +83,7 @@ impl Display for DependencyLocation {
 }
 
 #[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, Ord, PartialOrd)]
-pub struct AsyncDependenciesBlockIdentifier(Identifier);
+pub struct AsyncDependenciesBlockIdentifier(pub Identifier);
 
 impl From<String> for AsyncDependenciesBlockIdentifier {
   fn from(value: String) -> Self {
@@ -167,6 +170,11 @@ impl AsyncDependenciesBlock {
     // self.blocks.push(block);
   }
 
+  // pub fn clear_blocks(&mut self) {
+  //   self.block_ids.clear();
+  //   self.blocks.clear();
+  // }
+
   pub fn take_blocks(&mut self) -> Vec<Box<AsyncDependenciesBlock>> {
     std::mem::take(&mut self.blocks)
   }
@@ -192,6 +200,12 @@ impl DependenciesBlock for AsyncDependenciesBlock {
 
   fn get_blocks(&self) -> &[AsyncDependenciesBlockIdentifier] {
     &self.block_ids
+  }
+
+  fn clear_blocks(&mut self) {
+    println!("😓 clear_blocks");
+    self.block_ids.clear();
+    self.blocks.clear();
   }
 
   fn add_dependency_id(&mut self, dependency: DependencyId) {

@@ -1,6 +1,7 @@
 #![feature(let_chains)]
 
 mod electron_target_plugin;
+mod external_module_dependency;
 mod http_externals_plugin;
 mod node_target_plugin;
 mod plugin;

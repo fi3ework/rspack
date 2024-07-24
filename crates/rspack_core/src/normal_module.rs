@@ -321,6 +321,11 @@ impl DependenciesBlock for NormalModule {
     &self.blocks
   }
 
+  fn clear_blocks(&mut self) {
+    println!("😓 clear_blocks");
+    self.blocks.clear();
+  }
+
   fn add_dependency_id(&mut self, dependency: DependencyId) {
     self.dependencies.push(dependency)
   }

@@ -34,7 +34,7 @@ pub enum ExternalRequest {
 
 #[derive(Debug, Clone)]
 pub struct ExternalRequestValue {
-  primary: String,
+  pub primary: String,
   rest: Option<Vec<String>>,
 }
 
@@ -125,7 +125,7 @@ pub struct ExternalModule {
   pub request: ExternalRequest,
   external_type: ExternalType,
   /// Request intended by user (without loaders from config)
-  user_request: String,
+  pub user_request: String,
   factory_meta: Option<FactoryMeta>,
   build_info: Option<BuildInfo>,
   build_meta: Option<BuildMeta>,
@@ -407,7 +407,7 @@ impl Module for ExternalModule {
   async fn build(
     &mut self,
     build_context: BuildContext<'_>,
-    _: Option<&Compilation>,
+    compilation: Option<&Compilation>,
   ) -> Result<BuildResult> {
     let mut hasher = RspackHash::from(&build_context.compiler_options.output);
     self.update_hash(&mut hasher);
@@ -435,6 +435,38 @@ impl Module for ExternalModule {
       "import" => {
         build_result.build_meta.has_top_level_await = true;
         build_result.build_meta.exports_type = BuildMetaExportsType::Namespace;
+      }
+      "module-import" => {
+        // let compilation2 = compilation.expect("should pass compilation");
+        // let module_graph = compilation2.get_module_graph();
+        // let connections = module_graph.get_incoming_connections(&self.identifier());
+        // // loop connections
+        // for connection in connections {
+        //   let module_id = connection.original_module_identifier.as_ref().unwrap();
+        //   let user_request = self.user_request.clone();
+        //   let module = module_graph.module_by_identifier(module_id).unwrap();
+        //   module.get_blocks().iter().for_each(|block_id| {
+        //     let block = module_graph
+        //       .block_by_id(block_id)
+        //       .expect("should have block");
+        //     for dep_id in block.get_dependencies() {
+        //       let dep = module_graph
+        //         .dependency_by_id(dep_id)
+        //         .expect("should have dependency")
+        //         .as_any();
+
+        //       println!("dep: {:?}", dep);
+
+        //       // if (user_request == dep.request) {
+        //       //   // build_result.dependencies.push(Box::new(dep.clone()));
+        //       // }
+        //       // let dep = module_graph.dependency_by_id(dep_id);
+        //       // if dep.request == user_request {
+        //       //   build_result.dependencies.push(Box::new(dep.clone()));
+        //       // }
+        //     }
+        //   });
+        // }
       }
       _ => build_result.build_meta.exports_type = BuildMetaExportsType::Dynamic,
     }
