@@ -855,7 +855,8 @@ export const externalsType = z.enum([
 	"promise",
 	"import",
 	"script",
-	"node-commonjs"
+	"node-commonjs",
+	"module-import"
 ]);
 export type ExternalsType = z.infer<typeof externalsType>;
 //#endregion

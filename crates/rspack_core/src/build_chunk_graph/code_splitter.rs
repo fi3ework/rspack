@@ -1535,6 +1535,7 @@ Or do you want to use the entrypoints '{name}' and '{runtime}' independently on 
       let modules = map
         .get_mut(&block_id)
         .expect("should have modules in block_modules_runtime_map");
+
       let active_state = get_active_state_of_connections(
         &connections,
         runtime,

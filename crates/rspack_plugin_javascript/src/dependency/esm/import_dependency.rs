@@ -51,8 +51,8 @@ pub fn create_import_dependency_referenced_exports(
 
 #[derive(Debug, Clone)]
 pub struct ImportDependency {
-  start: u32,
-  end: u32,
+  pub start: u32,
+  pub end: u32,
   id: DependencyId,
   request: Atom,
   span: Option<ErrorSpan>,

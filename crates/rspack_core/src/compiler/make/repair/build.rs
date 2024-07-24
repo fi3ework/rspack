@@ -6,8 +6,8 @@ use super::{process_dependencies::ProcessDependenciesTask, MakeTaskContext};
 use crate::{
   utils::task_loop::{Task, TaskResult, TaskType},
   AsyncDependenciesBlock, BoxDependency, BuildContext, BuildResult, CompilerModuleContext,
-  CompilerOptions, DependencyParents, Module, ModuleProfile, ResolverFactory, RunnerContext,
-  SharedPluginDriver,
+  CompilerOptions, DependencyParents, Module, ModuleGraph, ModuleProfile, ResolverFactory,
+  RunnerContext, SharedPluginDriver,
 };
 
 #[derive(Debug)]

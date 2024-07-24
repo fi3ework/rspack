@@ -14,6 +14,7 @@ rspack_core  = { path = "../rspack_core" }
 rspack_error = { path = "../rspack_error" }
 rspack_hook  = { path = "../rspack_hook" }
 rspack_regex = { path = "../rspack_regex" }
+rspack_plugin_javascript = { path = "../rspack_plugin_javascript" }
 tracing      = { workspace = true }
 
 [package.metadata.cargo-shear]
