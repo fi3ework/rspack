@@ -2,17 +2,20 @@ use std::hash::Hash;
 
 use rspack_core::rspack_sources::{ConcatSource, RawSource, SourceExt};
 use rspack_core::{
-  ApplyContext, ChunkUkey, CodeGenerationExportsFinalNames, Compilation, CompilationParams,
-  CompilerCompilation, CompilerOptions, ConcatenatedModuleExportsDefinitions, DependencyType,
-  LibraryOptions, ModuleIdentifier, Plugin, PluginContext,
+  merge_runtime, ApplyContext, ChunkUkey, CodeGenerationExportsFinalNames, Compilation,
+  CompilationOptimizeChunkModules, CompilationParams, CompilerCompilation, CompilerOptions,
+  ConcatenatedModule, ConcatenatedModuleExportsDefinitions, LibraryOptions, ModuleIdentifier,
+  Plugin, PluginContext,
 };
 use rspack_error::{error_bail, Result};
 use rspack_hash::RspackHash;
 use rspack_hook::{plugin, plugin_hook};
-use rspack_plugin_javascript::dependency::HarmonyExportSpecifierDependency;
+use rspack_plugin_javascript::ModuleConcatenationPlugin;
 use rspack_plugin_javascript::{
-  JavascriptModulesChunkHash, JavascriptModulesRenderStartup, JsPlugin, RenderSource,
+  ConcatConfiguration, JavascriptModulesChunkHash, JavascriptModulesRenderStartup, JsPlugin,
+  RenderSource,
 };
+use rustc_hash::FxHashSet as HashSet;
 
 use crate::utils::{get_options_for_chunk, COMMON_LIBRARY_NAME_MESSAGE};
 
@@ -39,6 +42,76 @@ impl ModernModuleLibraryPlugin {
       .filter(|library| library.library_type == "modern-module")
       .map(|library| self.parse_options(library))
       .transpose()
+  }
+
+  async fn optimize_chunk_modules_impl(&self, compilation: &mut Compilation) -> Result<()> {
+    let module_graph: rspack_core::ModuleGraph = compilation.get_module_graph();
+
+    let module_ids: Vec<_> = module_graph
+      .module_graph_modules()
+      .keys()
+      .copied()
+      .collect();
+
+    let mut concatenated_module_ids = HashSet::default();
+
+    for module_id in &module_ids {
+      let module = module_graph
+        .module_by_identifier(module_id)
+        .expect("should have module");
+
+      println!("module id: {:#?}", module_id);
+      if let Some(module) = module.as_ref().downcast_ref::<ConcatenatedModule>() {
+        concatenated_module_ids.insert(*module_id);
+        for inner_module in module.get_modules() {
+          println!("concatenated_module_ids: {:#?}", inner_module.id);
+          concatenated_module_ids.insert(inner_module.id);
+        }
+      }
+    }
+
+    // find modules not in concatenated modules
+    let unconcatenated_module_ids = module_ids
+      .iter()
+      .filter(|id| {
+        // sdf
+        return !concatenated_module_ids.contains(id);
+      })
+      .collect::<HashSet<_>>();
+
+    println!("has_outgoing: {:#?}", unconcatenated_module_ids);
+
+    // if has_concatenated {
+    // return Ok(());
+    // }
+
+    // println!("has_outgoing: {}", has_concatenated);
+    // let module_ids = module_graph
+    //   .module_graph_modules()
+    //   .keys()
+    //   .copied()
+    //   .collect::<Vec<_>>();
+
+    for module_id in unconcatenated_module_ids.into_iter() {
+      let chunk_runtime = compilation
+        .chunk_graph
+        .get_module_runtimes(*module_id, &compilation.chunk_by_ukey)
+        .into_values()
+        .fold(Default::default(), |acc, r| merge_runtime(&acc, &r));
+
+      let current_configuration = ConcatConfiguration::new(*module_id, Some(chunk_runtime.clone()));
+
+      let mut used_modules = HashSet::default();
+
+      ModuleConcatenationPlugin::process_concatenated_configuration(
+        compilation,
+        current_configuration,
+        &mut used_modules,
+      )
+      .await?;
+    }
+
+    Ok(())
   }
 }
 
@@ -92,22 +165,22 @@ fn render_startup(
       }
     }
   } else {
-    let module_deps = module.get_dependencies();
-    for dep in module_deps {
-      let dep = module_graph
-        .dependency_by_id(dep)
-        .expect("should have dependency");
+    // let module_deps = module.get_dependencies();
+    // for dep in module_deps {
+    //   let dep = module_graph
+    //     .dependency_by_id(dep)
+    //     .expect("should have dependency");
 
-      if *dep.dependency_type() == DependencyType::EsmExportSpecifier {
-        if let Some(dep) = dep.downcast_ref::<HarmonyExportSpecifierDependency>() {
-          if dep.value == dep.name {
-            exports.push(dep.value.to_string());
-          } else {
-            exports.push(format!("{} as {}", dep.value, dep.name));
-          }
-        }
-      }
-    }
+    //   if *dep.dependency_type() == DependencyType::EsmExportSpecifier {
+    //     if let Some(dep) = dep.downcast_ref::<HarmonyExportSpecifierDependency>() {
+    //       if dep.value == dep.name {
+    //         exports.push(dep.value.to_string());
+    //       } else {
+    //         exports.push(format!("{} as {}", dep.value, dep.name));
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   if !exports.is_empty() {
@@ -133,6 +206,12 @@ async fn js_chunk_hash(
   };
   PLUGIN_NAME.hash(hasher);
   Ok(())
+}
+
+#[plugin_hook(CompilationOptimizeChunkModules for ModernModuleLibraryPlugin)]
+async fn optimize_chunk_modules(&self, compilation: &mut Compilation) -> Result<Option<bool>> {
+  self.optimize_chunk_modules_impl(compilation).await?;
+  Ok(None)
 }
 
 #[plugin_hook(CompilerCompilation for ModernModuleLibraryPlugin)]
@@ -176,6 +255,12 @@ impl Plugin for ModernModuleLibraryPlugin {
       .concatenated_module_hooks
       .exports_definitions
       .tap(exports_definitions::new(self));
+
+    ctx
+      .context
+      .compilation_hooks
+      .optimize_chunk_modules
+      .tap(optimize_chunk_modules::new(self));
 
     Ok(())
   }
