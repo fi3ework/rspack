@@ -2,10 +2,10 @@ use std::hash::Hash;
 
 use rspack_core::rspack_sources::{ConcatSource, RawSource, SourceExt};
 use rspack_core::{
-  merge_runtime, ApplyContext, ChunkUkey, CodeGenerationExportsFinalNames, Compilation,
-  CompilationOptimizeChunkModules, CompilationParams, CompilerCompilation, CompilerOptions,
-  ConcatenatedModule, ConcatenatedModuleExportsDefinitions, LibraryOptions, ModuleIdentifier,
-  Plugin, PluginContext,
+  merge_runtime, to_identifier, ApplyContext, ChunkUkey, CodeGenerationExportsFinalNames,
+  Compilation, CompilationOptimizeChunkModules, CompilationParams, CompilerCompilation,
+  CompilerOptions, ConcatenatedModule, ConcatenatedModuleExportsDefinitions, LibraryOptions,
+  ModuleIdentifier, Plugin, PluginContext,
 };
 use rspack_error::{error_bail, Result};
 use rspack_hash::RspackHash;
@@ -74,6 +74,60 @@ impl ModernModuleLibraryPlugin {
     let unconcatenated_module_ids = module_ids
       .iter()
       .filter(|id| !concatenated_module_ids.contains(id))
+      // TODO: Re-implement detect bail out reason for module from `module_concatenation_plugin`
+      // Should set bail out reason for module in `module_concatenation_plugin`, then we can filter
+      // out module by the bai out reason attached to the module.
+      .filter(|id| {
+        let module = module_graph
+          .module_by_identifier(id)
+          .expect("should have module");
+        module
+          .get_concatenation_bailout_reason(&module_graph, &compilation.chunk_graph)
+          .is_none()
+      })
+      .filter(|id| {
+        let m = module_graph.module_by_identifier(id);
+        let number_of_module_chunks = compilation.chunk_graph.get_number_of_module_chunks(**id);
+        // Module is async
+        if module_graph.is_async(id).expect("should have async result") {
+          return false;
+        }
+        // Module is not in strict mode
+        if !m
+          .and_then(|m| m.build_info())
+          .expect("should have build info")
+          .strict
+        {
+          return false;
+        }
+        // Module is not in any chunk
+        if number_of_module_chunks == 0 {
+          return false;
+        }
+        // Reexports in this module do not have a static target
+        let exports_info = module_graph.get_exports_info(id);
+        let relevant_exports = exports_info.get_relevant_exports(None, &module_graph);
+        let unknown_exports = relevant_exports
+          .iter()
+          .filter(|id| {
+            let export_info = id.get_export_info(&module_graph).clone();
+            export_info.is_reexport() && export_info.id.get_target(&module_graph, None).is_none()
+          })
+          .copied()
+          .collect::<Vec<_>>();
+
+        if !unknown_exports.is_empty() {
+          return false;
+        }
+
+        // Module is an entry point
+        let is_entry_module = compilation.chunk_graph.is_entry_module(id);
+        if is_entry_module {
+          return false;
+        }
+
+        true
+      })
       .collect::<HashSet<_>>();
 
     for module_id in unconcatenated_module_ids.into_iter() {
@@ -114,6 +168,7 @@ fn render_startup(
     .get(module_id, Some(&chunk.runtime));
 
   let mut exports = vec![];
+  let mut exports_with_property_access = vec![];
 
   let Some(_) = self.get_options_for_chunk(compilation, chunk_ukey)? else {
     return Ok(());
@@ -138,13 +193,27 @@ fn render_startup(
 
       let final_name = exports_final_names.get(used_name.as_str());
       if let Some(final_name) = final_name {
-        if info_name == final_name {
+        if final_name.contains('.') {
+          exports_with_property_access.push((final_name, info));
+        } else if info_name == final_name {
           exports.push(info_name.to_string());
         } else {
           exports.push(format!("{} as {}", final_name, info_name));
         }
       }
     }
+  }
+
+  for (final_name, info) in exports_with_property_access.iter() {
+    let info_name = info.name.as_ref().expect("should have name");
+    let var_name = format!("__webpack_exports__{}", to_identifier(info_name));
+
+    source.add(RawSource::from(format!(
+      "var {var_name} = {};\n",
+      final_name
+    )));
+
+    exports.push(format!("{} as {}", var_name, info_name));
   }
 
   if !exports.is_empty() {
