@@ -1,4 +1,5 @@
 use std::{
+  collections::{BTreeMap, BTreeSet},
   fmt::Debug,
   hash::{BuildHasherDefault, Hash},
   sync::atomic::AtomicU32,
@@ -535,4 +536,125 @@ fn wrap_in_condition(condition: &str, source: &str) -> String {
   {source}
 }}"#
   )
+}
+
+#[derive(Debug, Clone, Hash)]
+pub struct ExternalModuleInitFragment {
+  imported_module: String,
+  // webpack also supports `ImportSpecifiers` but not ever used.
+  import_specifiers: BTreeMap<String, BTreeSet<String>>,
+  default_import: Option<String>,
+  stage: InitFragmentStage,
+  position: i32,
+  key: InitFragmentKey,
+}
+
+impl ExternalModuleInitFragment {
+  pub fn new(
+    imported_module: String,
+    import_specifiers: Vec<(String, String)>,
+    default_import: Option<String>,
+    stage: InitFragmentStage,
+    position: i32,
+    key: InitFragmentKey,
+  ) -> Self {
+    let mut self_import_specifiers: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+
+    for (name, value) in import_specifiers {
+      if let Some(set) = self_import_specifiers.get_mut(&name) {
+        set.insert(value);
+      } else {
+        let mut set = BTreeSet::new();
+        set.insert(value);
+        self_import_specifiers.insert(name, set);
+      }
+    }
+
+    Self {
+      imported_module,
+      import_specifiers: self_import_specifiers,
+      default_import,
+      stage,
+      position,
+      key,
+    }
+  }
+
+  pub fn merge(
+    one: ExternalModuleInitFragment,
+    other: ExternalModuleInitFragment,
+  ) -> Box<ExternalModuleInitFragment> {
+    let mut import_specifiers = one.import_specifiers.clone();
+    for (name, value) in other.import_specifiers {
+      if let Some(set) = import_specifiers.get_mut(&name) {
+        set.extend(value);
+      } else {
+        import_specifiers.insert(name, value);
+      }
+    }
+
+    Box::new(Self {
+      imported_module: one.imported_module,
+      import_specifiers,
+      default_import: one.default_import,
+      stage: one.stage,
+      position: one.position,
+      key: one.key,
+    })
+  }
+}
+
+impl<C: InitFragmentRenderContext> InitFragment<C> for ExternalModuleInitFragment {
+  fn contents(self: Box<Self>, _context: &mut C) -> Result<InitFragmentContents> {
+    let mut named_imports = vec![];
+
+    for (name, specifiers) in self.import_specifiers {
+      for spec in specifiers {
+        if name == spec {
+          named_imports.push(spec);
+        } else {
+          named_imports.push(format!("{name} as {spec}"));
+        }
+      }
+    }
+
+    let mut imports_string: String;
+    imports_string = if named_imports.is_empty() {
+      "".to_string()
+    } else {
+      format!("{{{}}}", named_imports.join(", "))
+    };
+
+    if let Some(default_import) = self.default_import {
+      imports_string = format!(
+        "{}{}",
+        default_import,
+        if imports_string.is_empty() {
+          "".to_string()
+        } else {
+          format!(", {}", imports_string)
+        }
+      );
+    }
+
+    let start = format!(
+      "import {} from {};\n",
+      imports_string,
+      serde_json::to_string(&self.imported_module).expect("invalid json tostring")
+    );
+
+    Ok(InitFragmentContents { start, end: None })
+  }
+
+  fn stage(&self) -> InitFragmentStage {
+    self.stage
+  }
+
+  fn position(&self) -> i32 {
+    self.position
+  }
+
+  fn key(&self) -> &InitFragmentKey {
+    &self.key
+  }
 }
