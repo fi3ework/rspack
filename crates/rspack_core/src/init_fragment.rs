@@ -113,9 +113,32 @@ impl InitFragmentKey {
         let promises = fragments.into_iter().map(|f| f.into_any().downcast::<AwaitDependenciesInitFragment>().expect("fragment of InitFragmentKey::AwaitDependencies should be a AwaitDependenciesInitFragment")).flat_map(|f| f.promises).collect();
         AwaitDependenciesInitFragment::new(promises).boxed()
       }
+      InitFragmentKey::ExternalModule(_) => {
+        let mut iter = fragments.into_iter();
+        let first = iter
+          .next()
+          .expect("keyed_fragments should at least have one value");
+        let first = first
+          .into_any()
+          .downcast::<ExternalModuleInitFragment>()
+          .expect(
+            "fragment of InitFragmentKey::ExternalModule should be a ExternalModuleInitFragment",
+          );
+
+        let mut res = first;
+        for fragment in iter {
+          let fragment = fragment
+            .into_any()
+            .downcast::<ExternalModuleInitFragment>()
+            .expect(
+              "fragment of InitFragmentKey::ExternalModule should be a ExternalModuleInitFragment",
+            );
+          res = ExternalModuleInitFragment::merge(res, fragment);
+        }
+        res
+      }
       InitFragmentKey::HarmonyFakeNamespaceObjectFragment(_)
       | InitFragmentKey::HarmonyExportStar(_)
-      | InitFragmentKey::ExternalModule(_)
       | InitFragmentKey::ModuleDecorator(_)
       | InitFragmentKey::CommonJsExports(_)
       | InitFragmentKey::Const(_) => first(fragments),
@@ -556,7 +579,6 @@ impl ExternalModuleInitFragment {
     default_import: Option<String>,
     stage: InitFragmentStage,
     position: i32,
-    key: InitFragmentKey,
   ) -> Self {
     let mut self_import_specifiers: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
 
@@ -570,6 +592,12 @@ impl ExternalModuleInitFragment {
       }
     }
 
+    let key = InitFragmentKey::ExternalModule(format!(
+      "external module imports|{}|{}",
+      imported_module,
+      default_import.clone().unwrap_or_else(|| "null".to_string()),
+    ));
+
     Self {
       imported_module,
       import_specifiers: self_import_specifiers,
@@ -581,8 +609,8 @@ impl ExternalModuleInitFragment {
   }
 
   pub fn merge(
-    one: ExternalModuleInitFragment,
-    other: ExternalModuleInitFragment,
+    one: Box<ExternalModuleInitFragment>,
+    other: Box<ExternalModuleInitFragment>,
   ) -> Box<ExternalModuleInitFragment> {
     let mut import_specifiers = one.import_specifiers.clone();
     for (name, value) in other.import_specifiers {
@@ -622,7 +650,7 @@ impl<C: InitFragmentRenderContext> InitFragment<C> for ExternalModuleInitFragmen
     imports_string = if named_imports.is_empty() {
       "".to_string()
     } else {
-      format!("{{{}}}", named_imports.join(", "))
+      named_imports.join(", ")
     };
 
     if let Some(default_import) = self.default_import {

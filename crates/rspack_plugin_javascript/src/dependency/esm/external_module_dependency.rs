@@ -39,7 +39,6 @@ impl DependencyTemplate for ExternalModuleDependency {
       self.default_import.clone(),
       InitFragmentStage::StageConstants,
       0,
-      InitFragmentKey::ExternalModule(self.module.to_string()),
     );
     chunk_init_fragments.push(fragment.boxed());
   }
