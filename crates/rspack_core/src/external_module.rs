@@ -216,33 +216,6 @@ impl ExternalModule {
           get_source_for_commonjs(request)
         )
       }
-      "node-commonjs" if let Some(request) = request => {
-        if compilation.options.output.module {
-          chunk_init_fragments.push(
-            NormalInitFragment::new(
-              "import { createRequire as __WEBPACK_EXTERNAL_createRequire } from \"module\";\n"
-                .to_string(),
-              InitFragmentStage::StageHarmonyImports,
-              0,
-              InitFragmentKey::ModuleExternal("node-commonjs".to_string()),
-              None,
-            )
-            .boxed(),
-          );
-          format!(
-            "{} = __WEBPACK_EXTERNAL_createRequire({}.url)({});",
-            get_namespace_object_export(concatenation_scope),
-            compilation.options.output.import_meta_name,
-            json_stringify(request.primary())
-          )
-        } else {
-          format!(
-            "{} = {};",
-            get_namespace_object_export(concatenation_scope),
-            get_source_for_commonjs(request)
-          )
-        }
-      }
       "amd" | "amd-require" | "umd" | "umd2" | "system" | "jsonp" => {
         let id = compilation
           .get_module_graph()
@@ -255,7 +228,7 @@ impl ExternalModule {
           to_identifier(id)
         )
       }
-      "module" | "import" | "module-import" if let Some(request) = request => {
+      "module" | "import" | "module-import" | "node-commonjs" if let Some(request) = request => {
         match self.get_module_import_type(external_type) {
           "import" => {
             format!(
@@ -297,6 +270,33 @@ impl ExternalModule {
                 "{} = {};",
                 get_namespace_object_export(concatenation_scope),
                 get_source_for_import(request, compilation)
+              )
+            }
+          }
+          "node-commonjs" => {
+            if compilation.options.output.module {
+              chunk_init_fragments.push(
+                NormalInitFragment::new(
+                  "import { createRequire as __WEBPACK_EXTERNAL_createRequire } from \"module\";\n"
+                    .to_string(),
+                  InitFragmentStage::StageHarmonyImports,
+                  0,
+                  InitFragmentKey::ModuleExternal("node-commonjs".to_string()),
+                  None,
+                )
+                .boxed(),
+              );
+              format!(
+                "{} = __WEBPACK_EXTERNAL_createRequire({}.url)({});",
+                get_namespace_object_export(concatenation_scope),
+                compilation.options.output.import_meta_name,
+                json_stringify(request.primary())
+              )
+            } else {
+              format!(
+                "{} = {};",
+                get_namespace_object_export(concatenation_scope),
+                get_source_for_commonjs(request)
               )
             }
           }
@@ -351,15 +351,15 @@ if(typeof {global} !== "undefined") return resolve();
   fn get_module_import_type<'a>(&self, external_type: &'a ExternalType) -> &'a str {
     match external_type.as_str() {
       "module-import" => {
-        let external_type = self
-          .dependency_meta
-          .external_type
-          .as_ref()
-          .expect("should get \"module\" or \"import\" external type from dependency");
+        let external_type = self.dependency_meta.external_type.as_ref();
 
-        match external_type {
-          ExternalTypeEnum::Import => "import",
-          ExternalTypeEnum::Module => "module",
+        if let Some(external_type) = external_type {
+          match external_type {
+            ExternalTypeEnum::Import => "import",
+            ExternalTypeEnum::Module => "module",
+          }
+        } else {
+          "node-commonjs"
         }
       }
       import_or_module => import_or_module,
@@ -461,7 +461,7 @@ impl Module for ExternalModule {
   ) -> Result<BuildResult> {
     let mut hasher = RspackHash::from(&build_context.compiler_options.output);
     self.update_hash(&mut hasher);
-    let (_, external_type) = self.get_request_and_external_type();
+    let (request, external_type) = self.get_request_and_external_type();
 
     let build_info = BuildInfo {
       hash: Some(hasher.digest(&build_context.compiler_options.output.hash_digest)),
@@ -488,6 +488,7 @@ impl Module for ExternalModule {
           build_result.build_meta.has_top_level_await = true;
           build_result.build_meta.exports_type = BuildMetaExportsType::Namespace;
         }
+        "node-commonjs" => build_result.build_meta.exports_type = BuildMetaExportsType::Dynamic,
         r#type => panic!(
           "Unhandled external type: {} in \"module-import\" type",
           r#type
