@@ -545,7 +545,7 @@ var bar_default = /*#__PURE__*/__webpack_require__.n(bar);
 const foo = 'foo'
 
 // CONCATENATED MODULE: ./f/index.js
-;
+
 
 
 const value = foo + (bar_default())

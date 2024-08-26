@@ -51,6 +51,8 @@ use crate::{
 type ExportsDefinitionArgs = Vec<(String, String)>;
 define_hook!(ConcatenatedModuleExportsDefinitions: SyncSeriesBail(exports_definitions: &mut ExportsDefinitionArgs) -> bool);
 
+const PREFIX_CHARS: [char; 5] = ['[', '(', '+', '-', '/'];
+
 #[derive(Debug, Default)]
 pub struct ConcatenatedModuleHooks {
   pub exports_definitions: ConcatenatedModuleExportsDefinitionsHook,
@@ -894,10 +896,8 @@ impl Module for ConcatenatedModule {
         // range is extended by 2 chars to cover the appended "._"
         // https://github.com/webpack/webpack/blob/ac7e531436b0d47cd88451f497cdfd0dad41535d/lib/optimize/ConcatenatedModule.js#L1411-L1412
 
-        let add_prefix_asi = (&final_name).to_string().starts_with(|c: char| match c {
-          '[' | '(' | '+' | '-' | '/' => true,
-          _ => false,
-        });
+        let add_prefix_asi =
+          matches!(final_name.chars().next(), Some(c) if PREFIX_CHARS.contains(&c));
 
         if add_prefix_asi {
           info.prefix_asi = true;
@@ -1760,10 +1760,7 @@ impl ConcatenatedModule {
         ));
       });
 
-      let prefix = (&source_code).to_string().starts_with(|c: char| match c {
-        '[' | '(' | '+' | '-' | '/' => true,
-        _ => false,
-      });
+      let prefix = matches!(source_code.chars().next(), Some(c) if PREFIX_CHARS.contains(&c));
       let result_source = ReplaceSource::new(source.clone());
       module_info.module_ctxt = module_ctxt;
       module_info.global_ctxt = global_ctxt;
