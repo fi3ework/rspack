@@ -185,6 +185,7 @@ pub struct ConcatenatedModuleInfo {
   pub global_scope_ident: Vec<ConcatenatedModuleIdent>,
   pub idents: Vec<ConcatenatedModuleIdent>,
   pub binding_to_ref: HashMap<(Atom, SyntaxContext), Vec<ConcatenatedModuleIdent>>,
+  pub prefix_asi: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -892,6 +893,16 @@ impl Module for ConcatenatedModule {
         let source = info.source.as_mut().expect("should have source");
         // range is extended by 2 chars to cover the appended "._"
         // https://github.com/webpack/webpack/blob/ac7e531436b0d47cd88451f497cdfd0dad41535d/lib/optimize/ConcatenatedModule.js#L1411-L1412
+
+        let add_prefix_asi = (&final_name).to_string().starts_with(|c: char| match c {
+          '[' | '(' | '+' | '-' | '/' => true,
+          _ => false,
+        });
+
+        if add_prefix_asi {
+          info.prefix_asi = true;
+        }
+
         source.replace(low, high + 2, &final_name, None);
       }
     }
@@ -1166,12 +1177,13 @@ impl Module for ConcatenatedModule {
       match info {
         ModuleInfo::Concatenated(info) => {
           result.add(RawSource::from(
-            format!(
-              "\n;// CONCATENATED MODULE: {}\n",
-              module_readable_identifier
-            )
-            .as_str(),
+            format!("\n// CONCATENATED MODULE: {}\n", module_readable_identifier).as_str(),
           ));
+
+          if info.prefix_asi {
+            result.add(RawSource::from(";"));
+          }
+
           // https://github.com/webpack/webpack/blob/ac7e531436b0d47cd88451f497cdfd0dad41535d/lib/optimize/ConcatenatedModule.js#L1582
           result.add(info.source.clone().expect("should have source"));
 
@@ -1694,12 +1706,13 @@ impl ConcatenatedModule {
       let source_code = source.source();
 
       let cm: Arc<swc_core::common::SourceMap> = Default::default();
+      let source_code_clone = source_code.clone();
       let fm = cm.new_source_file(
         Arc::new(FileName::Custom(format!(
           "{}",
           self.readable_identifier(&compilation.options.context),
         ))),
-        source_code.into(),
+        source_code_clone.into(),
       );
       let comments = SwcComments::default();
       let mut module_info = concatenation_scope.current_module;
@@ -1747,11 +1760,16 @@ impl ConcatenatedModule {
         ));
       });
 
+      let prefix = (&source_code).to_string().starts_with(|c: char| match c {
+        '[' | '(' | '+' | '-' | '/' => true,
+        _ => false,
+      });
       let result_source = ReplaceSource::new(source.clone());
       module_info.module_ctxt = module_ctxt;
       module_info.global_ctxt = global_ctxt;
       module_info.ast = Some(ast);
       module_info.runtime_requirements = runtime_requirements;
+      module_info.prefix_asi = prefix;
       module_info.internal_source = Some(source);
       module_info.source = Some(result_source);
       module_info.chunk_init_fragments = chunk_init_fragments;
