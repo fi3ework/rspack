@@ -123,7 +123,7 @@ pub struct ExternalModule {
   pub request: ExternalRequest,
   external_type: ExternalType,
   /// Request intended by user (without loaders from config)
-  user_request: String,
+  pub user_request: String,
   factory_meta: Option<FactoryMeta>,
   build_info: Option<BuildInfo>,
   build_meta: Option<BuildMeta>,
