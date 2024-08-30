@@ -32,7 +32,7 @@ pub enum ExternalRequest {
 
 #[derive(Debug, Clone)]
 pub struct ExternalRequestValue {
-  primary: String,
+  pub primary: String,
   rest: Option<Vec<String>>,
 }
 

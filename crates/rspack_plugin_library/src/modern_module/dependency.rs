@@ -6,9 +6,10 @@ use rspack_core::{
 use rspack_core::{AsContextDependency, Dependency};
 use rspack_core::{DependencyCategory, DependencyId, DependencyTemplate};
 use rspack_core::{ModuleDependency, TemplateContext, TemplateReplaceSource};
+use rspack_plugin_javascript::dependency::create_resource_identifier_for_esm_dependency;
 use swc_core::ecma::atoms::Atom;
 
-use super::create_resource_identifier_for_esm_dependency;
+// use super::create_resource_identifier_for_esm_dependency
 
 // pub fn create_import_dependency_referenced_exports(
 //   dependency_id: &DependencyId,
@@ -56,6 +57,7 @@ use super::create_resource_identifier_for_esm_dependency;
 pub struct ModernModuleImportDependency {
   id: DependencyId,
   request: Atom,
+  target_request: Atom,
   range: RealDependencyLocation,
   referenced_exports: Option<Vec<Atom>>,
   attributes: Option<ImportAttributes>,
@@ -65,6 +67,7 @@ pub struct ModernModuleImportDependency {
 impl ModernModuleImportDependency {
   pub fn new(
     request: Atom,
+    target_request: Atom,
     range: RealDependencyLocation,
     referenced_exports: Option<Vec<Atom>>,
     attributes: Option<ImportAttributes>,
@@ -73,6 +76,7 @@ impl ModernModuleImportDependency {
       create_resource_identifier_for_esm_dependency(request.as_str(), attributes.as_ref());
     Self {
       request,
+      target_request,
       range,
       id: DependencyId::new(),
       referenced_exports,
@@ -140,15 +144,12 @@ impl DependencyTemplate for ModernModuleImportDependency {
     source: &mut TemplateReplaceSource,
     code_generatable_context: &mut TemplateContext,
   ) {
-    let module_graph = code_generatable_context.compilation.get_module_graph();
-    let block = module_graph.get_parent_block(&self.id);
+    // let module_graph = code_generatable_context.compilation.get_module_graph();
+    // let block = module_graph.get_parent_block(&self.id);
     source.replace(
       self.range.start,
       self.range.end,
-      format!(
-        "import("{}")", &self.request,
-      )
-      .as_str(),
+      format!("import('{}')", &self.target_request,).as_str(),
       None,
     );
   }
