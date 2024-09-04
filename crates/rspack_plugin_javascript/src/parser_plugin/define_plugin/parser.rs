@@ -1,4 +1,5 @@
-use std::sync::LazyLock;
+use std::cell::RefCell;
+use std::sync::{LazyLock, Mutex};
 use std::{borrow::Cow, sync::Arc};
 
 use itertools::Itertools as _;
@@ -177,6 +178,10 @@ pub(super) struct WalkData {
   object_define_record: FxHashMap<Arc<str>, ObjectDefineRecord>,
 }
 
+struct Recurse {
+  v: bool,
+}
+
 pub(super) fn walk_definitions(definitions: &DefineValue) -> WalkData {
   let mut data = WalkData::default();
 
@@ -204,10 +209,25 @@ pub(super) fn walk_definitions(definitions: &DefineValue) -> WalkData {
     };
     let key = Arc::<str>::from(key);
     let mut define_record = DefineRecord::from_code(code.clone());
+    // let mut recurse = false;
+    // let recurse = RefCell::new(false);
+    // let user_original = Arc::new(Mutex::new(User { name: String::from("drogus") }));
+    //
+    let mut recurse = Arc::new(Mutex::new(Recurse { v: false }));
+    let mut recurset_for_closure = recurse.clone();
+    // let mut recurse_typeof = false;
     if !is_typeof {
       walk_data.can_rename.insert(key.clone());
       define_record = define_record
         .with_on_evaluate_identifier(Box::new(move |record, parser, _ident, start, end| {
+          let mut p = recurset_for_closure.lock().unwrap();
+          if (recurset_for_closure.lock().unwrap().v) {
+            return None;
+          };
+
+          // *recurse.borrow_mut() = true;
+          recurset_for_closure.lock().unwrap().v = true;
+
           let evaluated = parser
             .evaluate(to_code(&record.code, None).into_owned(), "DefinePlugin")
             .map(|mut evaluated| {
