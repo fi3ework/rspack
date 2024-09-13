@@ -182,6 +182,10 @@ impl DependenciesBlock for AsyncDependenciesBlock {
     self.dependency_ids.push(dependency)
   }
 
+  // fn remove_dependency_id(&mut self, dependency: DependencyId) {
+  //   self.dependency_ids.retain(|dep| dep != &dependency);
+  // }
+
   fn get_dependencies(&self) -> &[DependencyId] {
     &self.dependency_ids
   }
