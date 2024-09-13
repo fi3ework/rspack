@@ -5,12 +5,15 @@ use rspack_core::{
   merge_runtime, to_identifier, ApplyContext, ChunkUkey, CodeGenerationExportsFinalNames,
   Compilation, CompilationFinishModules, CompilationOptimizeChunkModules, CompilationParams,
   CompilerCompilation, CompilerOptions, ConcatenatedModule, ConcatenatedModuleExportsDefinitions,
-  DependenciesBlock, Dependency, LibraryOptions, ModuleIdentifier, Plugin, PluginContext,
+  DependenciesBlock, Dependency, ExternalRequest, LibraryOptions, ModuleIdentifier, Plugin,
+  PluginContext,
 };
 use rspack_error::{error_bail, Result};
 use rspack_hash::RspackHash;
 use rspack_hook::{plugin, plugin_hook};
-use rspack_plugin_javascript::dependency::ImportDependency;
+use rspack_plugin_javascript::dependency::{
+  HarmonyExportImportedSpecifierDependency, ImportDependency,
+};
 use rspack_plugin_javascript::ModuleConcatenationPlugin;
 use rspack_plugin_javascript::{
   ConcatConfiguration, JavascriptModulesChunkHash, JavascriptModulesRenderStartup, JsPlugin,
@@ -199,11 +202,55 @@ async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
 
   for module_id in module_ids {
     let mut deps_to_replace = Vec::new();
+    let mut deps_to_replace2 = Vec::new();
     let module = mg
       .module_by_identifier(&module_id)
       .expect("should have mgm");
     let connections = mg.get_outgoing_connections(&module_id);
     let block_ids = module.get_blocks();
+    let dep_ids = module.get_dependencies();
+
+    for dep_id in dep_ids {
+      if let Some(export_dep) = mg
+        .dependency_by_id(dep_id)
+        .unwrap()
+        .downcast_ref::<HarmonyExportImportedSpecifierDependency>()
+      {
+        if export_dep.all_star_exports(&mg).is_some() {
+          connections.iter().for_each(|c| {
+            // println!("👩‍🎤 {} {} ", module_id, *c.module_identifier());
+            // module_id == *c.module_identifier()
+            let connection_module_id = c.module_identifier();
+            let connection_module = mg
+              .module_by_identifier(connection_module_id)
+              .expect("should have mgm");
+
+            if let Some(external_module) = connection_module.as_external_module() {
+              if external_module.user_request == export_dep.request.to_string() {
+                println!("👩🏻‍✈️");
+                dbg!(&export_dep);
+                deps_to_replace2.push((module_id, dep_id.clone(), external_module.request.clone()));
+              }
+            }
+          });
+
+          // if let Some(import_dep_connection) = import_dep_connection {
+          //   let connection_module = import_dep_connection.module_identifier();
+          //   let import_module = mg
+          //     .module_by_identifier(connection_module)
+          //     .expect("should have mgm");
+
+          //   if let Some(external_module) = import_module.as_external_module() {
+          //     if external_module.user_request == export_dep.request.to_string() {
+          //       println!("👩🏻‍✈️");
+          //       dbg!(&export_dep);
+          //       deps_to_replace2.push((module_id, dep_id.clone(), external_module.request.clone()));
+          //     }
+          //   }
+          // }
+        }
+      }
+    }
 
     for block_id in block_ids {
       let block = mg.block_by_id(block_id).expect("should have block");
@@ -245,6 +292,20 @@ async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
       }
     }
 
+    // To eliminate "export *" from external module runtime.
+    for (module_id, dep_id, request) in deps_to_replace2.iter() {
+      let module = mg
+        .module_by_identifier_mut(module_id)
+        .expect("should have module");
+
+      dbg!(&module);
+      module.remove_dependency_id(*dep_id);
+      // let m = mg
+      //   .get_module
+      //   .expect("should have module");
+    }
+
+    // To eliminate "import" external type runtime.
     for (block_id, dep, new_dep, connection_id) in deps_to_replace.iter() {
       let block = mg.block_by_id_mut(block_id).expect("should have block");
       let dep_id = dep.id();

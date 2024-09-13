@@ -19,6 +19,10 @@ pub trait DependenciesBlock {
 
   fn add_dependency_id(&mut self, dependency: DependencyId);
 
+  fn remove_dependency_id(&mut self, _dependency: DependencyId) {
+    todo!()
+  }
+
   fn get_dependencies(&self) -> &[DependencyId];
 }
 
@@ -182,16 +186,20 @@ impl DependenciesBlock for AsyncDependenciesBlock {
     self.dependency_ids.push(dependency)
   }
 
+  fn remove_dependency_id(&mut self, dependency: DependencyId) {
+    self.dependency_ids.retain(|dep| dep != &dependency);
+  }
+
   fn get_dependencies(&self) -> &[DependencyId] {
     &self.dependency_ids
   }
 }
 
-impl AsyncDependenciesBlock {
-  pub fn remove_dependency_id(&mut self, dependency: DependencyId) {
-    self.dependency_ids.retain(|dep| dep != &dependency);
-  }
-}
+// impl AsyncDependenciesBlock {
+//   pub fn remove_dependency_id(&mut self, dependency: DependencyId) {
+//     self.dependency_ids.retain(|dep| dep != &dependency);
+//   }
+// }
 
 #[derive(Debug, Error, Diagnostic)]
 #[diagnostic(code(AsyncDependencyToInitialChunkError))]
