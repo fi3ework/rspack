@@ -4881,6 +4881,10 @@ const javascriptParserOptions: z.ZodObject<{
     strictExportPresence: z.ZodOptional<z.ZodBoolean>;
     worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
     overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+    requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+    requireDynamic: z.ZodOptional<z.ZodBoolean>;
+    requireResolve: z.ZodOptional<z.ZodBoolean>;
+    importDynamic: z.ZodOptional<z.ZodBoolean>;
 }, "strict", z.ZodTypeAny, {
     dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
     dynamicImportPreload?: number | boolean | undefined;
@@ -4896,6 +4900,10 @@ const javascriptParserOptions: z.ZodObject<{
     strictExportPresence?: boolean | undefined;
     worker?: boolean | string[] | undefined;
     overrideStrict?: "strict" | "non-strict" | undefined;
+    requireAsExpression?: boolean | undefined;
+    requireDynamic?: boolean | undefined;
+    requireResolve?: boolean | undefined;
+    importDynamic?: boolean | undefined;
 }, {
     dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
     dynamicImportPreload?: number | boolean | undefined;
@@ -4911,6 +4919,10 @@ const javascriptParserOptions: z.ZodObject<{
     strictExportPresence?: boolean | undefined;
     worker?: boolean | string[] | undefined;
     overrideStrict?: "strict" | "non-strict" | undefined;
+    requireAsExpression?: boolean | undefined;
+    requireDynamic?: boolean | undefined;
+    requireResolve?: boolean | undefined;
+    importDynamic?: boolean | undefined;
 }>;
 
 // @public (undocumented)
@@ -6264,6 +6276,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence: z.ZodOptional<z.ZodBoolean>;
             worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
             overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+            requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+            requireDynamic: z.ZodOptional<z.ZodBoolean>;
+            requireResolve: z.ZodOptional<z.ZodBoolean>;
+            importDynamic: z.ZodOptional<z.ZodBoolean>;
         }, "strict", z.ZodTypeAny, {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
             dynamicImportPreload?: number | boolean | undefined;
@@ -6279,6 +6295,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         }, {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
             dynamicImportPreload?: number | boolean | undefined;
@@ -6294,6 +6314,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         }>>;
         "javascript/auto": z.ZodOptional<z.ZodObject<{
             dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -6310,6 +6334,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence: z.ZodOptional<z.ZodBoolean>;
             worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
             overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+            requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+            requireDynamic: z.ZodOptional<z.ZodBoolean>;
+            requireResolve: z.ZodOptional<z.ZodBoolean>;
+            importDynamic: z.ZodOptional<z.ZodBoolean>;
         }, "strict", z.ZodTypeAny, {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
             dynamicImportPreload?: number | boolean | undefined;
@@ -6325,6 +6353,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         }, {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
             dynamicImportPreload?: number | boolean | undefined;
@@ -6340,6 +6372,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         }>>;
         "javascript/dynamic": z.ZodOptional<z.ZodObject<{
             dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -6356,6 +6392,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence: z.ZodOptional<z.ZodBoolean>;
             worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
             overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+            requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+            requireDynamic: z.ZodOptional<z.ZodBoolean>;
+            requireResolve: z.ZodOptional<z.ZodBoolean>;
+            importDynamic: z.ZodOptional<z.ZodBoolean>;
         }, "strict", z.ZodTypeAny, {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
             dynamicImportPreload?: number | boolean | undefined;
@@ -6371,6 +6411,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         }, {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
             dynamicImportPreload?: number | boolean | undefined;
@@ -6386,6 +6430,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         }>>;
         "javascript/esm": z.ZodOptional<z.ZodObject<{
             dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -6402,6 +6450,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence: z.ZodOptional<z.ZodBoolean>;
             worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
             overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+            requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+            requireDynamic: z.ZodOptional<z.ZodBoolean>;
+            requireResolve: z.ZodOptional<z.ZodBoolean>;
+            importDynamic: z.ZodOptional<z.ZodBoolean>;
         }, "strict", z.ZodTypeAny, {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
             dynamicImportPreload?: number | boolean | undefined;
@@ -6417,6 +6469,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         }, {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
             dynamicImportPreload?: number | boolean | undefined;
@@ -6432,6 +6488,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         }>>;
     }, "strict", z.ZodTypeAny, {
         javascript?: {
@@ -6449,6 +6509,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         css?: {
             namedExports?: boolean | undefined;
@@ -6479,6 +6543,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         "javascript/dynamic"?: {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -6495,6 +6563,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         "javascript/esm"?: {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -6511,6 +6583,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
     }, {
         javascript?: {
@@ -6528,6 +6604,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         css?: {
             namedExports?: boolean | undefined;
@@ -6558,6 +6638,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         "javascript/dynamic"?: {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -6574,6 +6658,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         "javascript/esm"?: {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -6590,6 +6678,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
     }>, z.ZodRecord<z.ZodString, z.ZodRecord<z.ZodString, z.ZodAny>>]>>;
     generator: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
@@ -6837,6 +6929,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         css?: {
             namedExports?: boolean | undefined;
@@ -6867,6 +6963,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         "javascript/dynamic"?: {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -6883,6 +6983,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         "javascript/esm"?: {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -6899,6 +7003,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
     } | Record<string, Record<string, any>> | undefined;
     generator?: Record<string, Record<string, any>> | {
@@ -6965,6 +7073,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         css?: {
             namedExports?: boolean | undefined;
@@ -6995,6 +7107,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         "javascript/dynamic"?: {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -7011,6 +7127,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
         "javascript/esm"?: {
             dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -7027,6 +7147,10 @@ const moduleOptions: z.ZodObject<{
             strictExportPresence?: boolean | undefined;
             worker?: boolean | string[] | undefined;
             overrideStrict?: "strict" | "non-strict" | undefined;
+            requireAsExpression?: boolean | undefined;
+            requireDynamic?: boolean | undefined;
+            requireResolve?: boolean | undefined;
+            importDynamic?: boolean | undefined;
         } | undefined;
     } | Record<string, Record<string, any>> | undefined;
     generator?: Record<string, Record<string, any>> | {
@@ -8632,6 +8756,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence: z.ZodOptional<z.ZodBoolean>;
         worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
         overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+        requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+        requireDynamic: z.ZodOptional<z.ZodBoolean>;
+        requireResolve: z.ZodOptional<z.ZodBoolean>;
+        importDynamic: z.ZodOptional<z.ZodBoolean>;
     }, "strict", z.ZodTypeAny, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -8647,6 +8775,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -8662,6 +8794,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }>>;
     "javascript/auto": z.ZodOptional<z.ZodObject<{
         dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -8678,6 +8814,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence: z.ZodOptional<z.ZodBoolean>;
         worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
         overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+        requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+        requireDynamic: z.ZodOptional<z.ZodBoolean>;
+        requireResolve: z.ZodOptional<z.ZodBoolean>;
+        importDynamic: z.ZodOptional<z.ZodBoolean>;
     }, "strict", z.ZodTypeAny, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -8693,6 +8833,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -8708,6 +8852,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }>>;
     "javascript/dynamic": z.ZodOptional<z.ZodObject<{
         dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -8724,6 +8872,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence: z.ZodOptional<z.ZodBoolean>;
         worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
         overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+        requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+        requireDynamic: z.ZodOptional<z.ZodBoolean>;
+        requireResolve: z.ZodOptional<z.ZodBoolean>;
+        importDynamic: z.ZodOptional<z.ZodBoolean>;
     }, "strict", z.ZodTypeAny, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -8739,6 +8891,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -8754,6 +8910,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }>>;
     "javascript/esm": z.ZodOptional<z.ZodObject<{
         dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -8770,6 +8930,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence: z.ZodOptional<z.ZodBoolean>;
         worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
         overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+        requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+        requireDynamic: z.ZodOptional<z.ZodBoolean>;
+        requireResolve: z.ZodOptional<z.ZodBoolean>;
+        importDynamic: z.ZodOptional<z.ZodBoolean>;
     }, "strict", z.ZodTypeAny, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -8785,6 +8949,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -8800,6 +8968,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }>>;
 }, "strict", z.ZodTypeAny, {
     javascript?: {
@@ -8817,6 +8989,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     css?: {
         namedExports?: boolean | undefined;
@@ -8847,6 +9023,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     "javascript/dynamic"?: {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -8863,6 +9043,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     "javascript/esm"?: {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -8879,6 +9063,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
 }, {
     javascript?: {
@@ -8896,6 +9084,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     css?: {
         namedExports?: boolean | undefined;
@@ -8926,6 +9118,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     "javascript/dynamic"?: {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -8942,6 +9138,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     "javascript/esm"?: {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -8958,6 +9158,10 @@ const parserOptionsByModuleType: z.ZodUnion<[z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
 }>, z.ZodRecord<z.ZodString, z.ZodRecord<z.ZodString, z.ZodAny>>]>;
 
@@ -9019,6 +9223,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence: z.ZodOptional<z.ZodBoolean>;
         worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
         overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+        requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+        requireDynamic: z.ZodOptional<z.ZodBoolean>;
+        requireResolve: z.ZodOptional<z.ZodBoolean>;
+        importDynamic: z.ZodOptional<z.ZodBoolean>;
     }, "strict", z.ZodTypeAny, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -9034,6 +9242,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -9049,6 +9261,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }>>;
     "javascript/auto": z.ZodOptional<z.ZodObject<{
         dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -9065,6 +9281,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence: z.ZodOptional<z.ZodBoolean>;
         worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
         overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+        requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+        requireDynamic: z.ZodOptional<z.ZodBoolean>;
+        requireResolve: z.ZodOptional<z.ZodBoolean>;
+        importDynamic: z.ZodOptional<z.ZodBoolean>;
     }, "strict", z.ZodTypeAny, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -9080,6 +9300,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -9095,6 +9319,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }>>;
     "javascript/dynamic": z.ZodOptional<z.ZodObject<{
         dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -9111,6 +9339,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence: z.ZodOptional<z.ZodBoolean>;
         worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
         overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+        requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+        requireDynamic: z.ZodOptional<z.ZodBoolean>;
+        requireResolve: z.ZodOptional<z.ZodBoolean>;
+        importDynamic: z.ZodOptional<z.ZodBoolean>;
     }, "strict", z.ZodTypeAny, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -9126,6 +9358,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -9141,6 +9377,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }>>;
     "javascript/esm": z.ZodOptional<z.ZodObject<{
         dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -9157,6 +9397,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence: z.ZodOptional<z.ZodBoolean>;
         worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
         overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+        requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+        requireDynamic: z.ZodOptional<z.ZodBoolean>;
+        requireResolve: z.ZodOptional<z.ZodBoolean>;
+        importDynamic: z.ZodOptional<z.ZodBoolean>;
     }, "strict", z.ZodTypeAny, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -9172,6 +9416,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }, {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
         dynamicImportPreload?: number | boolean | undefined;
@@ -9187,6 +9435,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     }>>;
 }, "strict", z.ZodTypeAny, {
     javascript?: {
@@ -9204,6 +9456,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     css?: {
         namedExports?: boolean | undefined;
@@ -9234,6 +9490,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     "javascript/dynamic"?: {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -9250,6 +9510,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     "javascript/esm"?: {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -9266,6 +9530,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
 }, {
     javascript?: {
@@ -9283,6 +9551,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     css?: {
         namedExports?: boolean | undefined;
@@ -9313,6 +9585,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     "javascript/dynamic"?: {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -9329,6 +9605,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
     "javascript/esm"?: {
         dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -9345,6 +9625,10 @@ const parserOptionsByModuleTypeKnown: z.ZodObject<{
         strictExportPresence?: boolean | undefined;
         worker?: boolean | string[] | undefined;
         overrideStrict?: "strict" | "non-strict" | undefined;
+        requireAsExpression?: boolean | undefined;
+        requireDynamic?: boolean | undefined;
+        requireResolve?: boolean | undefined;
+        importDynamic?: boolean | undefined;
     } | undefined;
 }>;
 
@@ -12086,6 +12370,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence: z.ZodOptional<z.ZodBoolean>;
                 worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
                 overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+                requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+                requireDynamic: z.ZodOptional<z.ZodBoolean>;
+                requireResolve: z.ZodOptional<z.ZodBoolean>;
+                importDynamic: z.ZodOptional<z.ZodBoolean>;
             }, "strict", z.ZodTypeAny, {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
                 dynamicImportPreload?: number | boolean | undefined;
@@ -12101,6 +12389,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             }, {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
                 dynamicImportPreload?: number | boolean | undefined;
@@ -12116,6 +12408,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             }>>;
             "javascript/auto": z.ZodOptional<z.ZodObject<{
                 dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -12132,6 +12428,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence: z.ZodOptional<z.ZodBoolean>;
                 worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
                 overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+                requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+                requireDynamic: z.ZodOptional<z.ZodBoolean>;
+                requireResolve: z.ZodOptional<z.ZodBoolean>;
+                importDynamic: z.ZodOptional<z.ZodBoolean>;
             }, "strict", z.ZodTypeAny, {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
                 dynamicImportPreload?: number | boolean | undefined;
@@ -12147,6 +12447,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             }, {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
                 dynamicImportPreload?: number | boolean | undefined;
@@ -12162,6 +12466,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             }>>;
             "javascript/dynamic": z.ZodOptional<z.ZodObject<{
                 dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -12178,6 +12486,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence: z.ZodOptional<z.ZodBoolean>;
                 worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
                 overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+                requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+                requireDynamic: z.ZodOptional<z.ZodBoolean>;
+                requireResolve: z.ZodOptional<z.ZodBoolean>;
+                importDynamic: z.ZodOptional<z.ZodBoolean>;
             }, "strict", z.ZodTypeAny, {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
                 dynamicImportPreload?: number | boolean | undefined;
@@ -12193,6 +12505,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             }, {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
                 dynamicImportPreload?: number | boolean | undefined;
@@ -12208,6 +12524,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             }>>;
             "javascript/esm": z.ZodOptional<z.ZodObject<{
                 dynamicImportMode: z.ZodOptional<z.ZodEnum<["eager", "lazy", "weak", "lazy-once"]>>;
@@ -12224,6 +12544,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence: z.ZodOptional<z.ZodBoolean>;
                 worker: z.ZodOptional<z.ZodUnion<[z.ZodArray<z.ZodString, "many">, z.ZodBoolean]>>;
                 overrideStrict: z.ZodOptional<z.ZodEnum<["strict", "non-strict"]>>;
+                requireAsExpression: z.ZodOptional<z.ZodBoolean>;
+                requireDynamic: z.ZodOptional<z.ZodBoolean>;
+                requireResolve: z.ZodOptional<z.ZodBoolean>;
+                importDynamic: z.ZodOptional<z.ZodBoolean>;
             }, "strict", z.ZodTypeAny, {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
                 dynamicImportPreload?: number | boolean | undefined;
@@ -12239,6 +12563,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             }, {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
                 dynamicImportPreload?: number | boolean | undefined;
@@ -12254,6 +12582,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             }>>;
         }, "strict", z.ZodTypeAny, {
             javascript?: {
@@ -12271,6 +12603,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             css?: {
                 namedExports?: boolean | undefined;
@@ -12301,6 +12637,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/dynamic"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12317,6 +12657,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/esm"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12333,6 +12677,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
         }, {
             javascript?: {
@@ -12350,6 +12698,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             css?: {
                 namedExports?: boolean | undefined;
@@ -12380,6 +12732,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/dynamic"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12396,6 +12752,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/esm"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12412,6 +12772,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
         }>, z.ZodRecord<z.ZodString, z.ZodRecord<z.ZodString, z.ZodAny>>]>>;
         generator: z.ZodOptional<z.ZodUnion<[z.ZodObject<{
@@ -12659,6 +13023,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             css?: {
                 namedExports?: boolean | undefined;
@@ -12689,6 +13057,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/dynamic"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12705,6 +13077,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/esm"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12721,6 +13097,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
         } | Record<string, Record<string, any>> | undefined;
         generator?: Record<string, Record<string, any>> | {
@@ -12787,6 +13167,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             css?: {
                 namedExports?: boolean | undefined;
@@ -12817,6 +13201,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/dynamic"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12833,6 +13221,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/esm"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12849,6 +13241,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
         } | Record<string, Record<string, any>> | undefined;
         generator?: Record<string, Record<string, any>> | {
@@ -12935,6 +13331,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             css?: {
                 namedExports?: boolean | undefined;
@@ -12965,6 +13365,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/dynamic"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12981,6 +13385,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/esm"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -12997,6 +13405,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
         } | Record<string, Record<string, any>> | undefined;
         generator?: Record<string, Record<string, any>> | {
@@ -13517,6 +13929,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             css?: {
                 namedExports?: boolean | undefined;
@@ -13547,6 +13963,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/dynamic"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -13563,6 +13983,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
             "javascript/esm"?: {
                 dynamicImportMode?: "eager" | "lazy" | "weak" | "lazy-once" | undefined;
@@ -13579,6 +14003,10 @@ export const rspackOptions: z.ZodObject<{
                 strictExportPresence?: boolean | undefined;
                 worker?: boolean | string[] | undefined;
                 overrideStrict?: "strict" | "non-strict" | undefined;
+                requireAsExpression?: boolean | undefined;
+                requireDynamic?: boolean | undefined;
+                requireResolve?: boolean | undefined;
+                importDynamic?: boolean | undefined;
             } | undefined;
         } | Record<string, Record<string, any>> | undefined;
         generator?: Record<string, Record<string, any>> | {
