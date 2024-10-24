@@ -76,6 +76,18 @@ impl ESMExportImportedSpecifierDependency {
     }
   }
 
+  pub fn reexport_star_from_external_module(&self, module_graph: &ModuleGraph) -> bool {
+    if let Some(imported_module_identifier) =
+      module_graph.module_identifier_by_dependency_id(&self.id)
+    {
+      imported_module_identifier.starts_with("external module")
+        && self.name.is_none()
+        && self.other_star_exports.is_some()
+    } else {
+      false
+    }
+  }
+
   // Because it is shared by multiply ESMExportImportedSpecifierDependency, so put it to `BuildInfo`
   pub fn active_exports<'a>(&self, module_graph: &'a ModuleGraph) -> &'a HashSet<Atom> {
     let build_info = module_graph
@@ -267,6 +279,12 @@ impl ESMExportImportedSpecifierDependency {
       export_mode.items = Some(items);
       export_mode
     } else {
+      if self.reexport_star_from_external_module(module_graph) {
+        let mut export_mode = ExportMode::new(ExportModeType::ReexportFromExternalModule);
+        export_mode.name = Some("*".into());
+        return export_mode;
+      }
+
       let mut export_mode = ExportMode::new(ExportModeType::DynamicReexport);
       export_mode.ignored = Some(ignored_exports);
       export_mode.hidden = hidden;
@@ -281,6 +299,17 @@ impl ESMExportImportedSpecifierDependency {
     exports_info: Option<ExportsInfo>,
     imported_module_identifier: &ModuleIdentifier,
   ) -> StarReexportsInfo {
+    println!(
+      "🌊3 {:?} {:?} {:?} {:?}",
+      self.request, exports_info, imported_module_identifier, runtime
+    );
+
+    let is_external_module_id = imported_module_identifier.starts_with("external module");
+    if (is_external_module_id) {
+      println!("🌊4");
+    }
+    // let is_external_module_id = imported_module_identifier
+
     let exports_info = exports_info.unwrap_or_else(|| {
       // https://github.com/webpack/webpack/blob/ac7e531436b0d47cd88451f497cdfd0dad41535d/lib/dependencies/HarmonyExportImportedSpecifierDependency.js#L425
       let parent_module = module_graph
@@ -709,6 +738,9 @@ impl ESMExportImportedSpecifierDependency {
           .boxed(),
         );
       }
+      ExportModeType::ReexportFromExternalModule => {
+        // TODO: weiwei
+      }
     }
     ctxt.init_fragments.extend(fragments);
   }
@@ -1003,31 +1035,32 @@ impl DependencyTemplate for ESMExportImportedSpecifierDependency {
     _source: &mut TemplateReplaceSource,
     code_generatable_context: &mut TemplateContext,
   ) {
-    let TemplateContext {
-      compilation,
-      runtime,
-      concatenation_scope,
-      ..
-    } = code_generatable_context;
+    // let TemplateContext {
+    //   compilation,
+    //   runtime,
+    //   concatenation_scope,
+    //   ..
+    // } = code_generatable_context;
 
-    let module_graph = compilation.get_module_graph();
-    let mode = self.get_mode(self.name.clone(), &module_graph, &self.id, *runtime);
+    // let module_graph = compilation.get_module_graph();
+    // let mode = self.get_mode(self.name.clone(), &module_graph, &self.id, *runtime);
 
-    if let Some(ref mut scope) = concatenation_scope {
-      if matches!(mode.ty, ExportModeType::ReexportUndefined) {
-        scope.register_raw_export(
-          mode.name.clone().expect("should have name"),
-          String::from("/* reexport non-default export from non-ESM */ undefined"),
-        );
-      }
-      return;
-    }
+    // if let Some(ref mut scope) = concatenation_scope {
+    //   if matches!(mode.ty, ExportModeType::ReexportUndefined) {
+    //     scope.register_raw_export(
+    //       mode.name.clone().expect("should have name"),
+    //       String::from("/* reexport non-default export from non-ESM */ undefined"),
+    //     );
+    //   }
+    //   return;
+    // }
 
-    // dbg!(&mode, self.request());
-    if !matches!(mode.ty, ExportModeType::Unused | ExportModeType::EmptyStar) {
-      esm_import_dependency_apply(self, self.source_order, code_generatable_context);
-      self.add_export_fragments(code_generatable_context, mode);
-    }
+    // // dbg!(&mode, self.request());
+    // if !matches!(mode.ty, ExportModeType::Unused | ExportModeType::EmptyStar) {
+    //   println!("🥰 1");
+    //   esm_import_dependency_apply(self, self.source_order, code_generatable_context);
+    //   self.add_export_fragments(code_generatable_context, mode);
+    // }
   }
 
   fn dependency_id(&self) -> Option<DependencyId> {
@@ -1071,6 +1104,7 @@ impl Dependency for ESMExportImportedSpecifierDependency {
   #[allow(clippy::unwrap_in_result)]
   fn get_exports(&self, mg: &ModuleGraph) -> Option<ExportsSpec> {
     let mode = self.get_mode(self.name.clone(), mg, &self.id, None);
+    println!("🌊ty {:?}", &mode.ty);
     // dbg!(&self.request(), &mode);
     match mode.ty {
       ExportModeType::Missing => None,
@@ -1189,6 +1223,10 @@ impl Dependency for ESMExportImportedSpecifierDependency {
         })
       }
       ExportModeType::DynamicReexport => {
+        // if self.reexport_star_from_external_module(mg) {
+        //   return None;
+        // }
+
         let from = mg.connection_by_dependency_id(self.id());
         Some(ExportsSpec {
           exports: ExportsOfExportsSpec::True,
@@ -1215,6 +1253,10 @@ impl Dependency for ESMExportImportedSpecifierDependency {
           dependencies: Some(vec![*from.expect("should have module").module_identifier()]),
           ..Default::default()
         })
+      }
+      ExportModeType::ReexportFromExternalModule => {
+        // TODO: ww
+        None
       }
     }
   }
@@ -1334,6 +1376,10 @@ impl Dependency for ESMExportImportedSpecifierDependency {
           .map(ExtendedReferencedExport::Array)
           .collect::<Vec<_>>()
       }
+      ExportModeType::ReexportFromExternalModule => {
+        // TODO: ww
+        Vec::new()
+      }
     }
   }
 
@@ -1430,6 +1476,7 @@ pub enum ExportModeType {
   ReexportUndefined,
   NormalReexport,
   DynamicReexport,
+  ReexportFromExternalModule,
 }
 
 #[derive(Debug)]

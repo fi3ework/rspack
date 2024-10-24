@@ -6,12 +6,14 @@ use rspack_core::{
   CodeGenerationExportsFinalNames, Compilation, CompilationFinishModules,
   CompilationOptimizeChunkModules, CompilationParams, CompilerCompilation, CompilerOptions,
   ConcatenatedModule, ConcatenatedModuleExportsDefinitions, DependenciesBlock, Dependency,
-  LibraryOptions, ModuleIdentifier, Plugin, PluginContext,
+  ExternalRequest, LibraryOptions, ModuleIdentifier, Plugin, PluginContext,
 };
 use rspack_error::{error_bail, Result};
 use rspack_hash::RspackHash;
 use rspack_hook::{plugin, plugin_hook};
-use rspack_plugin_javascript::dependency::ImportDependency;
+use rspack_plugin_javascript::dependency::{
+  ESMExportImportedSpecifierDependency, ImportDependency,
+};
 use rspack_plugin_javascript::ModuleConcatenationPlugin;
 use rspack_plugin_javascript::{
   ConcatConfiguration, JavascriptModulesChunkHash, JavascriptModulesRenderStartup, JsPlugin,
@@ -19,7 +21,8 @@ use rspack_plugin_javascript::{
 };
 use rustc_hash::FxHashSet as HashSet;
 
-use super::modern_module::ModernModuleImportDependency;
+use super::modern_module::ModernModuleExportStarDependency;
+use crate::modern_module::ModernModuleImportDependency;
 use crate::utils::{get_options_for_chunk, COMMON_LIBRARY_NAME_MESSAGE};
 
 const PLUGIN_NAME: &str = "rspack.ModernModuleLibraryPlugin";
@@ -198,12 +201,11 @@ async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
   let modules = mg.modules();
   let module_ids = modules.keys().cloned().collect::<Vec<_>>();
 
-  for module_id in module_ids {
+  // === import() ===
+  for module_id in &module_ids {
     let mut deps_to_replace = Vec::new();
-    let module = mg
-      .module_by_identifier(&module_id)
-      .expect("should have mgm");
-    let connections = mg.get_outgoing_connections(&module_id);
+    let module = mg.module_by_identifier(module_id).expect("should have mgm");
+    let connections = mg.get_outgoing_connections(module_id);
     let block_ids = module.get_blocks();
 
     for block_id in block_ids {
@@ -254,6 +256,64 @@ async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
       block.add_dependency_id(*new_dep.id());
       mg.add_dependency(boxed_dep);
       mg.revoke_connection(connection_id, true);
+    }
+  }
+
+  // === reexport star ===
+  for module_id in &module_ids {
+    let mut deps_to_replace2 = Vec::new();
+    let module = mg.module_by_identifier(module_id).expect("should have mgm");
+    let connections = mg.get_outgoing_connections(module_id);
+    let dep_ids = module.get_dependencies();
+
+    for dep_id in dep_ids {
+      if let Some(export_dep) = mg
+        .dependency_by_id(dep_id)
+        .unwrap()
+        .downcast_ref::<ESMExportImportedSpecifierDependency>()
+      {
+        println!("export_dep: {:?}", export_dep);
+        if export_dep.reexport_star_from_external_module(&mg) {
+          let import_dep_connection = connections
+            .iter()
+            .find(|c| c.dependency_id == export_dep.id);
+
+          if let Some(import_dep_connection) = import_dep_connection {
+            let import_module_id = import_dep_connection.module_identifier();
+            let import_module = mg
+              .module_by_identifier(import_module_id)
+              .expect("should have mgm");
+
+            if let Some(external_module) = import_module.as_external_module() {
+              if external_module.user_request == export_dep.request.to_string() {
+                let new_dep = ModernModuleExportStarDependency::new(
+                  external_module.user_request.clone(),
+                  external_module.request.clone(),
+                );
+
+                deps_to_replace2.push((
+                  dep_id.clone(),
+                  module_id,
+                  external_module.request.clone(),
+                  import_dep_connection.dependency_id.clone(),
+                  new_dep.clone(),
+                ));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // To eliminate "export *" from external module runtime.
+    for (dep_id, module_id, request, connect_dep_id, new_dep) in deps_to_replace2.iter() {
+      let orig_m = mg
+        .module_by_identifier_mut(module_id)
+        .expect("should have module");
+
+      let boxed_dep = Box::new(new_dep.clone()) as BoxDependency;
+      orig_m.add_dependency_id(*new_dep.id());
+      mg.add_dependency(boxed_dep);
     }
   }
 

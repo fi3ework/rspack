@@ -10,7 +10,9 @@ use rspack_core::{
 };
 use rspack_error::Result;
 use rspack_hook::{plugin, plugin_hook};
-use rspack_plugin_javascript::dependency::{ESMImportSideEffectDependency, ImportDependency};
+use rspack_plugin_javascript::dependency::{
+  ESMExportImportedSpecifierDependency, ESMImportSideEffectDependency, ImportDependency,
+};
 
 static UNSPECIFIED_EXTERNAL_TYPE_REGEXP: LazyLock<Regex> =
   LazyLock::new(|| Regex::new(r"^[a-z0-9-]+ ").expect("Invalid regex"));
@@ -32,6 +34,7 @@ impl ExternalsPlugin {
     config: &ExternalItemValue,
     r#type: Option<String>,
     dependency: &dyn ModuleDependency,
+    only_reexport_star: bool,
   ) -> Option<ExternalModule> {
     let (external_module_config, external_module_type) = match config {
       ExternalItemValue::String(config) => {
@@ -103,6 +106,7 @@ impl ExternalsPlugin {
     }
 
     let dependency_meta: DependencyMeta = DependencyMeta {
+      only_reexport_star,
       external_type: {
         if dependency
           .as_any()
@@ -136,6 +140,29 @@ async fn factorize(&self, data: &mut ModuleFactoryCreateData) -> Result<Option<B
   let dependency = data.dependencies[0]
     .as_module_dependency()
     .expect("should be module dependency");
+
+  let import_count = data
+    .dependencies
+    .iter()
+    .filter(|d| {
+      d.as_any()
+        .downcast_ref::<ESMImportSideEffectDependency>()
+        .is_some()
+    })
+    .count();
+  // find dependency that could cast to ESMExportImportedSpecifierDependency
+  let only_reexport_star = data.dependencies.iter().any(|d| {
+    if let Some(dep) = d
+      .as_any()
+      .downcast_ref::<ESMExportImportedSpecifierDependency>()
+    {
+      if dep.ids.is_empty() && dep.other_star_exports.is_some() {
+        return true;
+      }
+    }
+    false
+  }) && import_count == 1;
+
   let context = &data.context;
   for external_item in &self.externals {
     match external_item {
@@ -143,7 +170,7 @@ async fn factorize(&self, data: &mut ModuleFactoryCreateData) -> Result<Option<B
         let request = dependency.request();
 
         if let Some(value) = eh.get(request) {
-          let maybe_module = self.handle_external(value, None, dependency);
+          let maybe_module = self.handle_external(value, None, dependency, only_reexport_star);
           return Ok(maybe_module.map(|i| i.boxed()));
         }
       }
@@ -154,6 +181,7 @@ async fn factorize(&self, data: &mut ModuleFactoryCreateData) -> Result<Option<B
             &ExternalItemValue::String(request.to_string()),
             None,
             dependency,
+            only_reexport_star,
           );
           return Ok(maybe_module.map(|i| i.boxed()));
         }
@@ -165,6 +193,7 @@ async fn factorize(&self, data: &mut ModuleFactoryCreateData) -> Result<Option<B
             &ExternalItemValue::String(request.to_string()),
             None,
             dependency,
+            only_reexport_star,
           );
           return Ok(maybe_module.map(|i| i.boxed()));
         }
@@ -184,7 +213,8 @@ async fn factorize(&self, data: &mut ModuleFactoryCreateData) -> Result<Option<B
         })
         .await?;
         if let Some(r) = result.result {
-          let maybe_module = self.handle_external(&r, result.external_type, dependency);
+          let maybe_module =
+            self.handle_external(&r, result.external_type, dependency, only_reexport_star);
           return Ok(maybe_module.map(|i| i.boxed()));
         }
       }

@@ -1,6 +1,6 @@
 use itertools::Itertools;
 use rspack_core::{
-  BoxDependency, ConstDependency, DependencyType, RealDependencyLocation, SpanExt,
+  BoxDependency, ConstDependency, Dependency, DependencyType, RealDependencyLocation, SpanExt,
 };
 use swc_core::atoms::Atom;
 use swc_core::common::comments::CommentKind;
@@ -78,6 +78,7 @@ impl JavascriptParserPlugin for ESMExportDependencyParserPlugin {
     let dep = if let Some(settings) = parser.get_tag_data(local_id, ESM_SPECIFIER_TAG) {
       let settings = ESMSpecifierData::downcast(settings);
       let range: RealDependencyLocation = statement.span().into();
+      println!("🌊 1");
       Box::new(ESMExportImportedSpecifierDependency::new(
         settings.source,
         settings.source_order,
@@ -131,7 +132,7 @@ impl JavascriptParserPlugin for ESMExportDependencyParserPlugin {
       local_id.map(|id| vec![id.clone()]).unwrap_or_default(),
       export_name.cloned(),
       local_id.is_some(),
-      star_exports,
+      star_exports.clone(),
       range.with_source(parser.source_map.clone()),
       ESMExportImportedSpecifierDependency::create_export_presence_mode(parser.javascript_options),
       None,
@@ -143,6 +144,14 @@ impl JavascriptParserPlugin for ESMExportDependencyParserPlugin {
     if !is_asi_safe {
       parser.set_asi_position(statement.span_hi());
     }
+
+    println!(
+      "🌊2 {:?} {:?} {:?} {:?}",
+      source.clone(),
+      export_name.clone(),
+      star_exports,
+      parser.module_identifier,
+    );
     parser.dependencies.push(Box::new(dep));
     Some(true)
   }
