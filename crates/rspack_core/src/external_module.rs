@@ -171,6 +171,7 @@ pub type MetaExternalType = Option<ExternalTypeEnum>;
 #[derive(Debug)]
 pub struct DependencyMeta {
   pub external_type: MetaExternalType,
+  pub reexport_star_only: bool,
 }
 
 impl ExternalModule {
@@ -186,7 +187,7 @@ impl ExternalModule {
       id: Identifier::from(format!(
         "external {} {}",
         resolve_external_type(external_type.as_str(), &dependency_meta),
-        serde_json::to_string(&request).expect("invalid json to_string")
+        serde_json::to_string(&request).expect("invalid json to_string"),
       )),
       request,
       external_type,
@@ -303,20 +304,22 @@ impl ExternalModule {
       "module" if let Some(request) = request => {
         if compilation.options.output.module {
           let id = to_identifier(&request.primary);
-          chunk_init_fragments.push(
-            NormalInitFragment::new(
-              format!(
-                "import * as __WEBPACK_EXTERNAL_MODULE_{}__ from {};\n",
-                id.clone(),
-                json_stringify(request.primary())
-              ),
-              InitFragmentStage::StageESMImports,
-              0,
-              InitFragmentKey::ModuleExternal(request.primary().into()),
-              None,
-            )
-            .boxed(),
-          );
+          if !self.dependency_meta.reexport_star_only {
+            chunk_init_fragments.push(
+              NormalInitFragment::new(
+                format!(
+                  "import * as __WEBPACK_EXTERNAL_MODULE_{}__ from {};\n",
+                  id.clone(),
+                  json_stringify(request.primary())
+                ),
+                InitFragmentStage::StageESMImports,
+                0,
+                InitFragmentKey::ModuleExternal(request.primary().into()),
+                None,
+              )
+              .boxed(),
+            );
+          }
 
           if let Some(concatenation_scope) = concatenation_scope {
             let external_module_id = format!("__WEBPACK_EXTERNAL_MODULE_{}__", id);

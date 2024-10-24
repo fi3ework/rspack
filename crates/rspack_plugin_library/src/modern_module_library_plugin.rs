@@ -6,12 +6,14 @@ use rspack_core::{
   CodeGenerationExportsFinalNames, Compilation, CompilationFinishModules,
   CompilationOptimizeChunkModules, CompilationParams, CompilerCompilation, CompilerOptions,
   ConcatenatedModule, ConcatenatedModuleExportsDefinitions, DependenciesBlock, Dependency,
-  LibraryOptions, ModuleIdentifier, Plugin, PluginContext,
+  ExternalRequest, LibraryOptions, ModuleIdentifier, Plugin, PluginContext,
 };
 use rspack_error::{error_bail, Result};
 use rspack_hash::RspackHash;
 use rspack_hook::{plugin, plugin_hook};
-use rspack_plugin_javascript::dependency::ImportDependency;
+use rspack_plugin_javascript::dependency::{
+  ESMExportImportedSpecifierDependency, ImportDependency,
+};
 use rspack_plugin_javascript::ModuleConcatenationPlugin;
 use rspack_plugin_javascript::{
   ConcatConfiguration, JavascriptModulesChunkHash, JavascriptModulesRenderStartup, JsPlugin,
@@ -19,7 +21,8 @@ use rspack_plugin_javascript::{
 };
 use rustc_hash::FxHashSet as HashSet;
 
-use super::modern_module::ModernModuleImportDependency;
+use super::modern_module::ModernModuleExportStarDependency;
+use crate::modern_module::ModernModuleImportDependency;
 use crate::utils::{get_options_for_chunk, COMMON_LIBRARY_NAME_MESSAGE};
 
 const PLUGIN_NAME: &str = "rspack.ModernModuleLibraryPlugin";
@@ -198,12 +201,11 @@ async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
   let modules = mg.modules();
   let module_ids = modules.keys().cloned().collect::<Vec<_>>();
 
-  for module_id in module_ids {
+  // === import() ===
+  for module_id in &module_ids {
     let mut deps_to_replace = Vec::new();
-    let module = mg
-      .module_by_identifier(&module_id)
-      .expect("should have mgm");
-    let connections = mg.get_outgoing_connections(&module_id);
+    let module = mg.module_by_identifier(module_id).expect("should have mgm");
+    let connections = mg.get_outgoing_connections(module_id);
     let block_ids = module.get_blocks();
 
     for block_id in block_ids {
@@ -254,6 +256,57 @@ async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
       block.add_dependency_id(*new_dep.id());
       mg.add_dependency(boxed_dep);
       mg.revoke_connection(connection_id, true);
+    }
+  }
+
+  // === reexport star ===
+  for module_id in &module_ids {
+    let mut new_deps = Vec::new();
+    let module = mg.module_by_identifier(module_id).expect("should have mgm");
+    let connections = mg.get_outgoing_connections(module_id);
+    let dep_ids = module.get_dependencies();
+
+    for dep_id in dep_ids {
+      if let Some(export_dep) = mg.dependency_by_id(dep_id) {
+        if let Some(reexport_dep) = export_dep
+          .as_any()
+          .downcast_ref::<ESMExportImportedSpecifierDependency>()
+        {
+          if reexport_dep.reexport_star_from_external_module(&mg) {
+            let reexport_connection = connections
+              .iter()
+              .find(|c| c.dependency_id == reexport_dep.id);
+
+            if let Some(reexport_connection) = reexport_connection {
+              let import_module_id = reexport_connection.module_identifier();
+              let import_module = mg
+                .module_by_identifier(import_module_id)
+                .expect("should have mgm");
+
+              if let Some(external_module) = import_module.as_external_module() {
+                if reexport_dep.request == external_module.user_request {
+                  let new_dep = ModernModuleExportStarDependency::new(
+                    external_module.user_request.clone(),
+                    external_module.request.clone(),
+                  );
+
+                  new_deps.push((module_id, new_dep.clone()));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (module_id, new_dep) in new_deps.iter() {
+      let importer = mg
+        .module_by_identifier_mut(module_id)
+        .expect("should have module");
+
+      let boxed_dep = Box::new(new_dep.clone()) as BoxDependency;
+      importer.add_dependency_id(*new_dep.id());
+      mg.add_dependency(boxed_dep);
     }
   }
 
