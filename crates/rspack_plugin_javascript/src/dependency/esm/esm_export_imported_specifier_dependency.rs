@@ -76,19 +76,6 @@ impl ESMExportImportedSpecifierDependency {
     }
   }
 
-  pub fn reexport_star_from_external_module(&self, mg: &ModuleGraph) -> bool {
-    if let Some(m) = mg.get_module_by_dependency_id(&self.id) {
-      if let Some(m) = m.as_external_module() {
-        if m.get_external_type() == "module" || m.get_external_type() == "module-import" {
-          // Star reexport will meet the condition.
-          return self.name.is_none() && self.other_star_exports.is_some();
-        }
-      }
-    }
-
-    false
-  }
-
   // Because it is shared by multiply ESMExportImportedSpecifierDependency, so put it to `BuildInfo`
   pub fn active_exports<'a>(&self, module_graph: &'a ModuleGraph) -> &'a HashSet<Atom> {
     let build_info = module_graph
@@ -280,12 +267,6 @@ impl ESMExportImportedSpecifierDependency {
       export_mode.items = Some(items);
       export_mode
     } else {
-      if self.reexport_star_from_external_module(module_graph) {
-        let mut export_mode = ExportMode::new(ExportModeType::ReexportFromExternalModule);
-        export_mode.name = Some("*".into());
-        return export_mode;
-      }
-
       let mut export_mode = ExportMode::new(ExportModeType::DynamicReexport);
       export_mode.ignored = Some(ignored_exports);
       export_mode.hidden = hidden;
@@ -728,7 +709,6 @@ impl ESMExportImportedSpecifierDependency {
           .boxed(),
         );
       }
-      ExportModeType::ReexportFromExternalModule => {}
     }
     ctxt.init_fragments.extend(fragments);
   }
@@ -1236,7 +1216,6 @@ impl Dependency for ESMExportImportedSpecifierDependency {
           ..Default::default()
         })
       }
-      ExportModeType::ReexportFromExternalModule => None,
     }
   }
 
@@ -1355,7 +1334,6 @@ impl Dependency for ESMExportImportedSpecifierDependency {
           .map(ExtendedReferencedExport::Array)
           .collect::<Vec<_>>()
       }
-      ExportModeType::ReexportFromExternalModule => Vec::new(),
     }
   }
 
@@ -1452,7 +1430,6 @@ pub enum ExportModeType {
   ReexportUndefined,
   NormalReexport,
   DynamicReexport,
-  ReexportFromExternalModule,
 }
 
 #[derive(Debug)]
