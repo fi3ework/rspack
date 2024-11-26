@@ -687,6 +687,54 @@ export { __webpack_exports__foo as foo };
 
 exports[`config config/library/modern-module-force-concaten step  should pass: unambiguous should bail out 1`] = `const c = 'c'`;
 
+exports[`config config/library/modern-module-parser-plugin step  should pass 1`] = `
+;// CONCATENATED MODULE: ./index.js
+function foo() {
+  return {
+    __webpack_hash__,
+    __webpack_layer__,
+    __webpack_public_path__,
+    __webpack_modules__,
+    __webpack_module__,
+    __webpack_chunk_load__,
+    __webpack_base_uri__,
+    __non_webpack_require__,
+    __system_context__,
+    __webpack_share_scopes__,
+    __webpack_init_sharing__,
+    __webpack_nonce__,
+    __webpack_chunkname__,
+    __webpack_runtime_id__,
+    __webpack_require__,
+    __webpack_get_script_filename__,
+    __rspack_version__,
+    __rspack_unique_id__,
+
+    a: require.extensions,
+    b: require.config,
+    c: require.version,
+    d: require.amd,
+    e: require.include,
+    f: require.onError,
+    g: require.main.require,
+    h: module.parent.require,
+    i: require.cache,
+    j: require.main,
+    k: __webpack_module__.id,
+
+    l: require.config(),
+    m: require.include(),
+    n: require.onError(),
+    o: require.main.require(),
+    p: require.parent.require(),
+  }
+}
+
+
+
+export { foo };
+`;
+
 exports[`config config/optimization/minimizer-esm-asset exported tests minimizing an asset file of esm type should success 1`] = `console.log(import.meta.url);export const a=1;`;
 
 exports[`config config/optimization/minimizer-swc-extract-comments exported tests should keep the extracted license file stable 1`] = `

@@ -320,9 +320,23 @@ impl<'parser> JavascriptParser<'parser> {
     if module_type.is_js_auto() || module_type.is_js_dynamic() || module_type.is_js_esm() {
       plugins.push(Box::new(parser_plugin::WebpackIsIncludedPlugin));
       plugins.push(Box::new(parser_plugin::ExportsInfoApiPlugin));
-      plugins.push(Box::new(parser_plugin::APIPlugin::new(
-        compiler_options.output.module,
-      )));
+
+      let can_add = if let Some(library) = &compiler_options.output.library {
+        library.library_type != "modern-module"
+      } else {
+        true
+      };
+
+      dbg!(can_add);
+
+      if can_add {
+        {
+          plugins.push(Box::new(parser_plugin::APIPlugin::new(
+            compiler_options.output.module,
+          )));
+        }
+      }
+
       plugins.push(Box::new(parser_plugin::ImportParserPlugin));
       let parse_url = javascript_options.url;
       if !matches!(parse_url, Some(JavascriptParserUrl::Disable)) {

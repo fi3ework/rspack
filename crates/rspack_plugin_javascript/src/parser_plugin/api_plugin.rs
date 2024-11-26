@@ -10,24 +10,24 @@ use crate::utils::eval::{self, BasicEvaluatedExpression};
 use crate::visitors::{expr_matcher, JavascriptParser};
 use crate::visitors::{expression_not_supported, extract_member_root};
 
-const WEBPACK_HASH: &str = "__webpack_hash__";
-const WEBPACK_LAYER: &str = "__webpack_layer__";
-const WEBPACK_PUBLIC_PATH: &str = "__webpack_public_path__";
-const WEBPACK_MODULES: &str = "__webpack_modules__";
-const WEBPACK_MODULE: &str = "__webpack_module__";
-const WEBPACK_CHUNK_LOAD: &str = "__webpack_chunk_load__";
-const WEBPACK_BASE_URI: &str = "__webpack_base_uri__";
-const NON_WEBPACK_REQUIRE: &str = "__non_webpack_require__";
-const SYSTEM_CONTEXT: &str = "__system_context__";
-const WEBPACK_SHARE_SCOPES: &str = "__webpack_share_scopes__";
-const WEBPACK_INIT_SHARING: &str = "__webpack_init_sharing__";
-const WEBPACK_NONCE: &str = "__webpack_nonce__";
-const WEBPACK_CHUNK_NAME: &str = "__webpack_chunkname__";
-const WEBPACK_RUNTIME_ID: &str = "__webpack_runtime_id__";
-const WEBPACK_REQUIRE: &str = RuntimeGlobals::REQUIRE.name();
-const WEBPACK_GET_SCRIPT_FILENAME: &str = "__webpack_get_script_filename__";
-const RSPACK_VERSION: &str = "__rspack_version__";
-const RSPACK_UNIQUE_ID: &str = "__rspack_unique_id__";
+pub const WEBPACK_HASH: &str = "__webpack_hash__";
+pub const WEBPACK_LAYER: &str = "__webpack_layer__";
+pub const WEBPACK_PUBLIC_PATH: &str = "__webpack_public_path__";
+pub const WEBPACK_MODULES: &str = "__webpack_modules__";
+pub const WEBPACK_MODULE: &str = "__webpack_module__";
+pub const WEBPACK_CHUNK_LOAD: &str = "__webpack_chunk_load__";
+pub const WEBPACK_BASE_URI: &str = "__webpack_base_uri__";
+pub const NON_WEBPACK_REQUIRE: &str = "__non_webpack_require__";
+pub const SYSTEM_CONTEXT: &str = "__system_context__";
+pub const WEBPACK_SHARE_SCOPES: &str = "__webpack_share_scopes__";
+pub const WEBPACK_INIT_SHARING: &str = "__webpack_init_sharing__";
+pub const WEBPACK_NONCE: &str = "__webpack_nonce__";
+pub const WEBPACK_CHUNK_NAME: &str = "__webpack_chunkname__";
+pub const WEBPACK_RUNTIME_ID: &str = "__webpack_runtime_id__";
+pub const WEBPACK_REQUIRE: &str = RuntimeGlobals::REQUIRE.name();
+pub const WEBPACK_GET_SCRIPT_FILENAME: &str = "__webpack_get_script_filename__";
+pub const RSPACK_VERSION: &str = "__rspack_version__";
+pub const RSPACK_UNIQUE_ID: &str = "__rspack_unique_id__";
 
 pub struct APIPluginOptions {
   module: bool,
