@@ -989,15 +989,17 @@ impl JavascriptParser<'_> {
             let drive = self.plugin_drive.clone();
             if evaluated_callee
               .root_info()
-              .call_hooks_name(self, |parser, for_name| {
-                drive.call_member_chain(
+              .call_hooks_info(self, |parser, for_name| {
+                let res = drive.call_member_chain(
                   parser,
                   expr,
                   for_name,
                   &members,
                   &members_optionals,
                   &member_ranges,
-                )
+                );
+
+                res
               })
               .unwrap_or_default()
             {
@@ -1006,14 +1008,50 @@ impl JavascriptParser<'_> {
               return;
             }
 
-            if drive
-              .call(self, expr, evaluated_callee.identifier())
+            // if evaluated_callee
+            //   .root_info()
+            //   .call_hooks_name(self, |parser, for_name| {
+            //     dbg!("🥺 for_name2", for_name);
+            //     drive.call(parser, expr, for_name)
+            //   })
+            //   .unwrap_or_default()
+            // {
+            //   /* result2 */
+            //   self.enter_call -= 1;
+            //   return;
+            // }
+
+            // let dummy = self.get_variable_info(&evaluated_callee.identifier());
+            // let mut condition = false;
+            // if let Some(dummy) = dummy {
+            //   // dummy
+            // }
+
+            // dbg!("🥺 dummy", dummy);
+            if evaluated_callee
+              .identifier()
+              .call_hooks_info(self, |parser, for_name| {
+                dbg!("🥺 for_name2", for_name, evaluated_callee.identifier());
+                drive.call(parser, expr, for_name)
+              })
+              // if drive
+              //   .call(self, expr, evaluated_callee.identifier())
               .unwrap_or_default()
             {
               /* result2 */
+              dbg!("🌊 result2");
               self.enter_call -= 1;
               return;
             }
+
+            // if drive
+            //   .call(self, expr, evaluated_callee.identifier())
+            //   .unwrap_or_default()
+            // {
+            //   /* result2 */
+            //   self.enter_call -= 1;
+            //   return;
+            // }
           }
 
           if let Some(member) = callee.as_member() {

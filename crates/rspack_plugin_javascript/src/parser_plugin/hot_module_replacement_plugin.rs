@@ -132,6 +132,7 @@ impl JavascriptParserPlugin for ModuleHotReplacementParserPlugin {
         Some(true),
         start,
         end,
+        None,
       ))
     } else {
       None
@@ -199,6 +200,7 @@ impl JavascriptParserPlugin for ImportMetaHotReplacementParserPlugin {
         Some(true),
         start,
         end,
+        None,
       ))
     } else {
       None

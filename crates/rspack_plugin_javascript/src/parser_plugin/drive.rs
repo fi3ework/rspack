@@ -602,7 +602,10 @@ impl JavascriptParserPlugin for JavaScriptParserPluginDrive {
     export_name: Option<&Atom>,
     identifier_name: &Atom,
   ) -> Option<bool> {
-    for plugin in &self.plugins {
+    let mut sorted_plugins: Vec<_> = self.plugins.iter().collect();
+    sorted_plugins.sort_by_key(|plugin| plugin.stage());
+
+    for plugin in sorted_plugins {
       let res = plugin.import_specifier(parser, statement, source, export_name, identifier_name);
       // `SyncBailHook`
       if res.is_some() {

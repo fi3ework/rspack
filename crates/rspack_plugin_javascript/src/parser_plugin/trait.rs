@@ -14,7 +14,16 @@ use crate::visitors::{
 
 type KeepRight = bool;
 
+// struct JavascriptParserPlugin {
+//   stage: int32,
+// }
+
 pub trait JavascriptParserPlugin {
+  /// 默认 stage 值
+  fn stage(&self) -> i32 {
+    0 // 默认值
+  }
+
   /// Return:
   /// - `Some(true)` signifies the termination of the current
   ///   statement's visit during the pre-walk phase.

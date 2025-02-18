@@ -175,6 +175,7 @@ impl JavascriptParserPlugin for AMDParserPlugin {
         Some(true),
         start,
         end,
+        None,
       ));
     }
 
@@ -185,6 +186,7 @@ impl JavascriptParserPlugin for AMDParserPlugin {
         Some(true),
         start,
         end,
+        None,
       ));
     }
 

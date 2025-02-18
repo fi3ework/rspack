@@ -2,6 +2,7 @@ use rspack_core::{
   ContextMode, ContextNameSpaceObject, ContextOptions, DependencyCategory, SpanExt,
 };
 use rspack_regex::RspackRegex;
+use swc_core::atoms::atom;
 use swc_core::common::Spanned;
 use swc_core::ecma::ast::{CallExpr, Lit};
 
@@ -121,6 +122,7 @@ impl JavascriptParserPlugin for ImportMetaContextDependencyParserPlugin {
         Some(true),
         start,
         end,
+        Some(vec![atom!("context")]),
       ))
     } else {
       None
@@ -133,16 +135,21 @@ impl JavascriptParserPlugin for ImportMetaContextDependencyParserPlugin {
     expr: &swc_core::ecma::ast::CallExpr,
     for_name: &str,
   ) -> Option<bool> {
-    if for_name != expr_name::IMPORT_META_WEBPACK_CONTEXT
-      || expr.args.is_empty()
-      || expr.args.len() > 2
-    {
-      None
-    } else if let Some(dep) = create_import_meta_context_dependency(expr, parser) {
-      parser.dependencies.push(Box::new(dep));
-      Some(true)
+    // dbg!("😡", for_name);
+    if for_name == expr_name::IMPORT_META_WEBPACK_CONTEXT {
+      if for_name != expr_name::IMPORT_META_WEBPACK_CONTEXT
+        || expr.args.is_empty()
+        || expr.args.len() > 2
+      {
+        return None;
+      } else if let Some(dep) = create_import_meta_context_dependency(expr, parser) {
+        parser.dependencies.push(Box::new(dep));
+        return Some(true);
+      } else {
+        return None;
+      }
     } else {
-      None
-    }
+      return None;
+    };
   }
 }
