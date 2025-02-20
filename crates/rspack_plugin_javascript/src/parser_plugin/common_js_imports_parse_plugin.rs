@@ -3,6 +3,7 @@ use rspack_core::{
 };
 use rspack_core::{ContextNameSpaceObject, ContextOptions};
 use rspack_error::{DiagnosticExt, Severity};
+use rspack_util::atom::Atom;
 use swc_core::common::{Span, Spanned};
 use swc_core::ecma::ast::{CallExpr, Expr, ExprOrSpread, Ident, MemberExpr, NewExpr, UnaryExpr};
 
@@ -386,7 +387,7 @@ impl CommonJsImportsParserPlugin {
 
 impl JavascriptParserPlugin for CommonJsImportsParserPlugin {
   fn can_rename(&self, parser: &mut JavascriptParser, str: &str) -> Option<bool> {
-    if str == expr_name::REQUIRE && parser.is_unresolved_ident(str) {
+    if str == expr_name::REQUIRE {
       Some(true)
     } else {
       None
@@ -394,7 +395,8 @@ impl JavascriptParserPlugin for CommonJsImportsParserPlugin {
   }
 
   fn rename(&self, parser: &mut JavascriptParser, expr: &Expr, str: &str) -> Option<bool> {
-    if str == expr_name::REQUIRE && parser.is_unresolved_ident(str) {
+    if str == expr_name::REQUIRE {
+      dbg!("☺️");
       parser
         .presentational_dependencies
         .push(Box::new(ConstDependency::new(
@@ -441,6 +443,7 @@ impl JavascriptParserPlugin for CommonJsImportsParserPlugin {
         Some(true),
         start,
         end,
+        Some(vec![]),
       )),
       expr_name::REQUIRE_RESOLVE => Some(eval::evaluate_to_identifier(
         expr_name::REQUIRE_RESOLVE.to_string(),
@@ -448,6 +451,7 @@ impl JavascriptParserPlugin for CommonJsImportsParserPlugin {
         Some(true),
         start,
         end,
+        Some(vec![Atom::from("resolve")]),
       )),
       expr_name::REQUIRE_RESOLVE_WEAK => Some(eval::evaluate_to_identifier(
         expr_name::REQUIRE_RESOLVE_WEAK.to_string(),
@@ -455,6 +459,7 @@ impl JavascriptParserPlugin for CommonJsImportsParserPlugin {
         Some(true),
         start,
         end,
+        Some(vec![Atom::from("resolveWeak")]),
       )),
       _ => None,
     }
@@ -562,6 +567,7 @@ impl JavascriptParserPlugin for CommonJsImportsParserPlugin {
     ident: &Ident,
     for_name: &str,
   ) -> Option<bool> {
+    dbg!(for_name);
     if for_name == expr_name::REQUIRE {
       return self.require_as_expression_handler(parser, ident);
     }
