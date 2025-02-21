@@ -456,8 +456,16 @@ impl<'parser> JavascriptParser<'parser> {
   }
 
   pub fn get_variable_info(&mut self, name: &str) -> Option<&VariableInfo> {
+    dbg!(
+      "🦀1 get_variable_info",
+      &self.definitions_db,
+      self.definitions,
+      name
+    );
     let id = self.definitions_db.get(self.definitions, name)?;
-    Some(self.definitions_db.expect_get_variable(id))
+    dbg!("🦀2 get_variable_info", id);
+    let res = Some(self.definitions_db.expect_get_variable(id));
+    res
   }
 
   pub fn get_tag_data(&mut self, name: &Atom, tag: &str) -> Option<Box<dyn anymap::CloneAny>> {
@@ -501,6 +509,7 @@ impl<'parser> JavascriptParser<'parser> {
   }
 
   pub fn define_variable(&mut self, name: String) {
+    dbg!("🤡 define_variable", &name);
     let definitions = self.definitions;
     if let Some(variable_info) = self.get_variable_info(&name)
       && variable_info.tag_info.is_some()
@@ -513,6 +522,7 @@ impl<'parser> JavascriptParser<'parser> {
   }
 
   pub fn set_variable(&mut self, name: String, variable: String) {
+    dbg!("🤡 set_variable", &name, &variable);
     let id = self.definitions;
     if name == variable {
       self.definitions_db.delete(id, &name);
@@ -537,6 +547,7 @@ impl<'parser> JavascriptParser<'parser> {
     tag: &'static str,
     data: Option<Data>,
   ) {
+    dbg!("🤡 tag_variable", &name, tag);
     let data = data.map(|data| TagInfoData::into_any(data));
     let new_info = if let Some(old_info_id) = self.definitions_db.get(self.definitions, &name) {
       let old_info = self.definitions_db.expect_get_variable(old_info_id);

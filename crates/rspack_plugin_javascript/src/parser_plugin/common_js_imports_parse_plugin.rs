@@ -396,7 +396,6 @@ impl JavascriptParserPlugin for CommonJsImportsParserPlugin {
 
   fn rename(&self, parser: &mut JavascriptParser, expr: &Expr, str: &str) -> Option<bool> {
     if str == expr_name::REQUIRE {
-      dbg!("☺️");
       parser
         .presentational_dependencies
         .push(Box::new(ConstDependency::new(
@@ -567,7 +566,7 @@ impl JavascriptParserPlugin for CommonJsImportsParserPlugin {
     ident: &Ident,
     for_name: &str,
   ) -> Option<bool> {
-    dbg!(for_name);
+    dbg!(for_name, ident);
     if for_name == expr_name::REQUIRE {
       return self.require_as_expression_handler(parser, ident);
     }

@@ -20,6 +20,7 @@ impl CallHooksName for &str {
   where
     F: Fn(&mut JavascriptParser, &str) -> Option<T>,
   {
+    dbg!("😅", &self);
     if let Some(id) = parser
       .get_variable_info(self.as_ref())
       .map(|info| info.id())

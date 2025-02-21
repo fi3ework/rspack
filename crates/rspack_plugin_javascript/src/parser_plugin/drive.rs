@@ -335,6 +335,7 @@ impl JavascriptParserPlugin for JavaScriptParserPluginDrive {
     for_name: &str,
   ) -> Option<bool> {
     for plugin in &self.plugins {
+      dbg!("🚨", for_name);
       let res = plugin.identifier(parser, expr, for_name);
       // `SyncBailHook`
       if res.is_some() {

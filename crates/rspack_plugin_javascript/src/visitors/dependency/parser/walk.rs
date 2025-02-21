@@ -152,6 +152,7 @@ impl JavascriptParser<'_> {
   }
 
   pub(crate) fn walk_statement(&mut self, statement: Statement) {
+    dbg!("😇 walk_statement", &statement);
     self.enter_statement(
       &statement,
       |parser, _| {
@@ -398,6 +399,7 @@ impl JavascriptParser<'_> {
   }
 
   pub fn walk_expression(&mut self, expr: &Expr) {
+    dbg!("😇 walk_expression", expr);
     match expr {
       Expr::Array(expr) => self.walk_array_expression(expr),
       Expr::Arrow(expr) => self.walk_arrow_function_expression(expr),
@@ -568,6 +570,7 @@ impl JavascriptParser<'_> {
   fn walk_property(&mut self, prop: &Prop) {
     match prop {
       Prop::Shorthand(ident) => {
+        dbg!("🥣2");
         self.in_short_hand = true;
         self.walk_identifier(ident);
         self.in_short_hand = false;
@@ -879,6 +882,7 @@ impl JavascriptParser<'_> {
         if let Some(var_info) = var_info
           && let Some(param) = params.get(i)
         {
+          dbg!("📕", param.sym.to_string(), &var_info);
           parser.set_variable(param.sym.to_string(), var_info);
         }
       }
@@ -889,6 +893,8 @@ impl JavascriptParser<'_> {
           let prev = parser.prev_statement;
           parser.pre_walk_statement(Statement::Block(stmt));
           parser.prev_statement = prev;
+
+          dbg!("🤔", &parser.definitions);
           parser.walk_statement(Statement::Block(stmt));
         }
       } else if let Some(expr) = expr.as_arrow() {
@@ -974,6 +980,7 @@ impl JavascriptParser<'_> {
           }
           let evaluated_callee = self.evaluate_expression(callee);
           if evaluated_callee.is_identifier() {
+            dbg!("🌊", &evaluated_callee);
             let members = evaluated_callee
               .members()
               .map(Cow::Borrowed)
@@ -1006,7 +1013,11 @@ impl JavascriptParser<'_> {
               return;
             }
 
-            dbg!(&evaluated_callee);
+            dbg!(
+              evaluated_callee.identifier(),
+              &evaluated_callee,
+              evaluated_callee.is_identifier()
+            );
             // if drive
             //   .call(self, expr, evaluated_callee.identifier())
             //   .unwrap_or_default()
@@ -1019,6 +1030,7 @@ impl JavascriptParser<'_> {
               })
               .unwrap_or_default()
             {
+              dbg!("🥵 result2");
               /* result2 */
               self.enter_call -= 1;
               return;
@@ -1106,6 +1118,7 @@ impl JavascriptParser<'_> {
 
   fn walk_identifier(&mut self, identifier: &Ident) {
     identifier.sym.call_hooks_name(self, |this, for_name| {
+      dbg!("🚪", for_name);
       this
         .plugin_drive
         .clone()
@@ -1159,6 +1172,7 @@ impl JavascriptParser<'_> {
       self.enter_pattern(
         Cow::Owned(warp_ident_to_pat(ident.clone().into())),
         |this, ident| {
+          dbg!("🥣3");
           // TODO: if (!this.callHooksForName(this.hooks.assign, name, expression)) {
           // webpack use `walk_expression`, `walk_expression` just walk down the ast, so it's ok to use `walk_identifier`
           this.walk_identifier(ident);

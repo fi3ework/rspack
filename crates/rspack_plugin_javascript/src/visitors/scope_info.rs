@@ -122,6 +122,7 @@ impl ScopeInfoDB {
       stack,
       map: Default::default(),
     };
+    dbg!("🟢2", id, &info);
     let prev = self.map.insert(id, info);
     assert!(prev.is_none());
     id
@@ -183,6 +184,7 @@ impl ScopeInfoDB {
 
   pub fn get<S: AsRef<str>>(&mut self, id: ScopeInfoId, key: S) -> Option<VariableInfoId> {
     let definitions = self.expect_get_scope(id);
+    dbg!(&definitions.map.keys().collect::<Vec<_>>());
     if let Some(&top_value) = definitions.map.get(key.as_ref()) {
       if top_value == VariableInfo::TOMBSTONE || top_value == VariableInfo::UNDEFINED {
         None
@@ -193,7 +195,9 @@ impl ScopeInfoDB {
       for index in (0..definitions.stack.len() - 1).rev() {
         // SAFETY: boundary had been checked
         let id = unsafe { definitions.stack.get_unchecked(index) };
+        dbg!("🥺1", key.as_ref(), id, &self);
         if let Some(&value) = self.expect_get_scope(*id).map.get(key.as_ref()) {
+          dbg!("🥺2", &value);
           if value == VariableInfo::TOMBSTONE || value == VariableInfo::UNDEFINED {
             return None;
           } else {
@@ -202,6 +206,7 @@ impl ScopeInfoDB {
         }
       }
       let definitions = self.expect_get_mut_scope(id);
+      dbg!("🟢3", &key.as_ref());
       definitions
         .map
         .insert(key.as_ref().to_string(), VariableInfo::TOMBSTONE);
@@ -212,6 +217,7 @@ impl ScopeInfoDB {
   }
 
   pub fn set(&mut self, id: ScopeInfoId, key: String, variable_info_id: VariableInfoId) {
+    dbg!("🟢1", id, &key, variable_info_id);
     let scope = self.expect_get_mut_scope(id);
     scope.map.insert(key, variable_info_id);
   }
@@ -219,10 +225,12 @@ impl ScopeInfoDB {
   pub fn delete<S: AsRef<str>>(&mut self, id: ScopeInfoId, key: S) {
     let scope = self.expect_get_mut_scope(id);
     if scope.stack.len() > 1 {
+      dbg!("🔴2", key.as_ref());
       scope
         .map
         .insert(key.as_ref().to_string(), VariableInfo::TOMBSTONE);
     } else {
+      dbg!("🔴1", key.as_ref());
       scope.map.remove(key.as_ref());
     }
   }
@@ -341,6 +349,7 @@ impl VariableInfo {
     free_name: Option<FreeName>,
     tag_info: Option<TagInfoId>,
   ) -> VariableInfoId {
+    dbg!("🥳", &free_name, &tag_info);
     let id = definitions_db.variable_info_db.next();
     let variable_info = VariableInfo {
       id,
