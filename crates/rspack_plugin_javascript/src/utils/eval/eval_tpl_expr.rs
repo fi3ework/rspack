@@ -3,6 +3,7 @@ use swc_core::common::Spanned;
 use swc_core::ecma::ast::{TaggedTpl, Tpl};
 
 use super::BasicEvaluatedExpression;
+use crate::visitors::parser::call_hooks_name::IdOrString;
 use crate::visitors::JavascriptParser;
 
 #[derive(Debug, Clone, Copy)]
@@ -88,9 +89,13 @@ pub fn eval_tagged_tpl_expression(
   tagged_tpl: &TaggedTpl,
 ) -> Option<BasicEvaluatedExpression> {
   let tag = scanner.evaluate_expression(&tagged_tpl.tag);
-  if !tag.is_identifier() || tag.identifier() != "String.raw" {
-    return None;
-  };
+
+  if let IdOrString::String(id) = tag.identifier() {
+    if !tag.is_identifier() || id != "String.raw" {
+      return None;
+    };
+  }
+
   let kind = TemplateStringKind::Raw;
   let tpl = &tagged_tpl.tpl;
   let (quasis, parts) = get_simplified_template_result(scanner, kind, tpl);

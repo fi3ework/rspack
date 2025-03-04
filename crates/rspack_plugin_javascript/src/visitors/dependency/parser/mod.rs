@@ -1,4 +1,4 @@
-mod call_hooks_name;
+pub mod call_hooks_name;
 pub mod estree;
 mod walk;
 mod walk_block_pre;
@@ -11,6 +11,7 @@ use std::sync::Arc;
 
 use bitflags::bitflags;
 pub use call_hooks_name::CallHooksName;
+use call_hooks_name::IdOrString;
 use rspack_core::{
   AdditionalData, AsyncDependenciesBlock, BoxDependency, BuildInfo, BuildMeta, DependencyTemplate,
   JavascriptParserOptions, ModuleIdentifier, ModuleLayer, ResourceData,
@@ -1009,8 +1010,10 @@ impl JavascriptParser<'_> {
               if let Some(FreeName::String(name)) = &info.free_name {
                 let mut eval =
                   BasicEvaluatedExpression::with_range(ident.span.real_lo(), ident.span.hi.0);
+                dbg!("😀", name, info);
                 eval.set_identifier(
-                  name.to_owned(),
+                  IdOrString::Id(info.id()),
+                  // IdOrString::String(name.to_owned()),
                   ExportedVariableInfo::VariableInfo(info.id()),
                   None,
                   None,
@@ -1024,7 +1027,7 @@ impl JavascriptParser<'_> {
               let mut eval =
                 BasicEvaluatedExpression::with_range(ident.span.real_lo(), ident.span.hi.0);
               eval.set_identifier(
-                ident.sym.to_string(),
+                IdOrString::String(ident.sym.to_string()),
                 ExportedVariableInfo::Name(name.to_string()),
                 None,
                 None,
@@ -1039,7 +1042,7 @@ impl JavascriptParser<'_> {
         let default_eval = || {
           let mut eval = BasicEvaluatedExpression::with_range(this.span.real_lo(), this.span.hi.0);
           eval.set_identifier(
-            "this".to_string(),
+            IdOrString::String("this".to_string()),
             ExportedVariableInfo::Name("this".to_string()),
             None,
             None,

@@ -1,4 +1,4 @@
-mod dependency;
+pub mod dependency;
 pub mod scope_info;
 pub mod semicolon;
 pub mod swc_visitor;

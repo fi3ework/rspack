@@ -1,5 +1,5 @@
 mod context_dependency_helper;
-mod parser;
+pub mod parser;
 mod util;
 
 use std::sync::Arc;

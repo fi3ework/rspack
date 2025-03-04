@@ -65,7 +65,7 @@ impl CallHooksName for String {
   where
     F: Fn(&mut JavascriptParser, &str) -> Option<T>,
   {
-    self.as_str().call_hooks_name(parser, hook_call)
+    self.as_str().call_hooks_info(parser, hook_call)
   }
 }
 
@@ -81,7 +81,7 @@ impl CallHooksName for Atom {
   where
     F: Fn(&mut JavascriptParser, &str) -> Option<T>,
   {
-    self.as_str().call_hooks_name(parser, hook_call)
+    self.as_str().call_hooks_info(parser, hook_call)
   }
 }
 
@@ -201,7 +201,8 @@ impl CallHooksName for OptChainExpr {
   }
 }
 
-enum IdOrString {
+#[derive(Debug, Clone)]
+pub enum IdOrString {
   Id(VariableInfoId),
   String(String),
 }

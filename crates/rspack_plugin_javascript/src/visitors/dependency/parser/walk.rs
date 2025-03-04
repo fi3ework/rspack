@@ -18,6 +18,7 @@ use swc_core::ecma::ast::{Prop, PropName, PropOrSpread, RestPat, ReturnStmt, Seq
 use swc_core::ecma::ast::{SwitchCase, SwitchStmt, Tpl, TryStmt, VarDecl, YieldExpr};
 use swc_core::ecma::ast::{ThrowStmt, UnaryExpr, UpdateExpr};
 
+use super::call_hooks_name::IdOrString;
 use super::estree::{ClassDeclOrExpr, MaybeNamedClassDecl, MaybeNamedFunctionDecl, Statement};
 use super::{
   AllowedMemberTypes, CallHooksName, JavascriptParser, MemberExpressionInfo, RootName,
@@ -1027,32 +1028,80 @@ impl JavascriptParser<'_> {
             //   // dummy
             // }
 
-            // dbg!("🥺 dummy", dummy);
-            if evaluated_callee
-              .identifier()
-              .call_hooks_info(self, |parser, for_name| {
-                dbg!("🥺 for_name2", for_name, evaluated_callee.identifier());
-                drive.call(parser, expr, for_name)
-              })
-              // if drive
-              //   .call(self, expr, evaluated_callee.identifier())
-              .unwrap_or_default()
-            {
-              /* result2 */
-              dbg!("🌊 result2");
-              self.enter_call -= 1;
-              return;
-            }
+            let ident = evaluated_callee.identifier();
+            dbg!("🥺 ident", ident);
 
-            // if drive
-            //   .call(self, expr, evaluated_callee.identifier())
-            //   .unwrap_or_default()
-            // {
-            //   /* result2 */
-            //   self.enter_call -= 1;
-            //   return;
-            // }
+            match ident {
+              IdOrString::String(id) => {
+                let drive = self.plugin_drive.clone();
+                if id
+                  .call_hooks_info(self, |this, for_name| drive.call(this, expr, for_name))
+                  .unwrap_or_default()
+                {
+                  self.enter_call -= 1;
+                  return;
+                }
+              }
+              IdOrString::Id(variable_info_id) => {
+                let info = self
+                  .definitions_db
+                  .expect_get_variable(variable_info_id.clone())
+                  .clone();
+                let free_name = info.free_name.as_ref();
+
+                dbg!("🥰", variable_info_id, info);
+                let drive = self.plugin_drive.clone();
+                if let Some(FreeName::String(str)) = free_name {
+                  // Create a local copy of the string to avoid borrowing self
+                  let str_copy = str.clone();
+                  if str_copy
+                    .call_hooks_info(self, |this, for_name| {
+                      dbg!("🤩", for_name);
+                      drive.call(this, expr, for_name)
+                    })
+                    .unwrap_or_default()
+                  {
+                    self.enter_call -= 1;
+                    return;
+                  }
+                }
+
+                // if info
+                //   .free_name
+                //   .call_hooks_info(self, |this, for_name| drive.call(this, expr, for_name))
+                //   .unwrap_or_default()
+                // {
+                //   self.enter_call -= 1;
+                //   return;
+                // }
+              }
+            }
           }
+
+          // if evaluated_callee
+          //   .identifier()
+          //   .call_hooks_info(self, |parser, for_name| {
+          //     dbg!("🥺 for_name2", for_name, evaluated_callee.identifier());
+          //     drive.call(parser, expr, for_name)
+          //   })
+          //   // if drive
+          //   //   .call(self, expr, evaluated_callee.identifier())
+          //   .unwrap_or_default()
+          // {
+          //   /* result2 */
+          //   dbg!("🌊 result2");
+          //   self.enter_call -= 1;
+          //   return;
+          // }
+
+          // if drive
+          //   .call(self, expr, evaluated_callee.identifier())
+          //   .unwrap_or_default()
+          // {
+          //   /* result2 */
+          //   self.enter_call -= 1;
+          //   return;
+          // }
 
           if let Some(member) = callee.as_member() {
             self.walk_expression(&member.obj);
@@ -1144,9 +1193,13 @@ impl JavascriptParser<'_> {
 
   fn get_rename_identifier(&mut self, expr: &Expr) -> Option<String> {
     let result = self.evaluate_expression(expr);
-    result
-      .is_identifier()
-      .then(|| result.identifier().to_string())
+    result.is_identifier().then(|| {
+      if let IdOrString::String(id) = result.identifier() {
+        id.to_string()
+      } else {
+        "".to_string()
+      }
+    })
   }
 
   fn walk_assignment_expression(&mut self, expr: &AssignExpr) {

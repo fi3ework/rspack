@@ -3,6 +3,7 @@ use swc_core::ecma::ast::MemberExpr;
 
 use super::BasicEvaluatedExpression;
 use crate::parser_plugin::JavascriptParserPlugin;
+use crate::visitors::parser::call_hooks_name::IdOrString;
 use crate::visitors::{AllowedMemberTypes, JavascriptParser, MemberExpressionInfo};
 
 pub fn eval_member_expression(
@@ -26,7 +27,7 @@ pub fn eval_member_expression(
         let mut eval =
           BasicEvaluatedExpression::with_range(member.span.real_lo(), member.span.hi().0);
         eval.set_identifier(
-          info.name,
+          IdOrString::String(info.name),
           info.root_info,
           Some(info.members),
           Some(info.members_optionals),

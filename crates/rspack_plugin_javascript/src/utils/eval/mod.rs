@@ -27,6 +27,7 @@ pub use self::eval_tpl_expr::{
   eval_tagged_tpl_expression, eval_tpl_expression, TemplateStringKind,
 };
 pub use self::eval_unary_expr::eval_unary_expression;
+use crate::visitors::dependency::parser::call_hooks_name::IdOrString;
 use crate::visitors::ExportedVariableInfo;
 
 #[allow(dead_code)]
@@ -71,7 +72,7 @@ pub struct BasicEvaluatedExpression {
   bigint: Option<Bigint>,
   regexp: Option<Regexp>,
   array: Option<Vec<String>>,
-  identifier: Option<String>,
+  identifier: Option<IdOrString>,
   root_info: Option<ExportedVariableInfo>,
   members: Option<Vec<Atom>>,
   members_optionals: Option<Vec<bool>>,
@@ -431,7 +432,7 @@ impl BasicEvaluatedExpression {
 
   pub fn set_identifier(
     &mut self,
-    name: String,
+    name: IdOrString,
     root_info: ExportedVariableInfo,
     members: Option<Vec<Atom>>,
     members_optionals: Option<Vec<bool>>,
@@ -498,7 +499,7 @@ impl BasicEvaluatedExpression {
     self.string.as_ref().expect("make sure string exist")
   }
 
-  pub fn identifier(&self) -> &str {
+  pub fn identifier(&self) -> &IdOrString {
     assert!(self.is_identifier());
     self
       .identifier
@@ -627,7 +628,7 @@ pub fn evaluate_to_identifier(
 ) -> BasicEvaluatedExpression {
   let mut eval = BasicEvaluatedExpression::with_range(start, end);
   eval.set_identifier(
-    identifier,
+    IdOrString::String(identifier),
     ExportedVariableInfo::Name(root_info),
     get_members,
     None,
