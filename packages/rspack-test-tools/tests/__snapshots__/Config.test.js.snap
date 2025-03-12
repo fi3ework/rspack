@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`config config/library/modern-module-dynamic-import-runtime should pass 1`] = `
+import * as __WEBPACK_EXTERNAL_MODULE_react_alias_fd8b3826__ from "react-alias";
+import * as __WEBPACK_EXTERNAL_MODULE_angular_alias_7d25287d__ from "angular-alias";
+
+;// CONCATENATED MODULE: external "react-alias"
+
+;// CONCATENATED MODULE: external "angular-alias"
+
+;// CONCATENATED MODULE: ./main2.js
+ // 'module' + 'import' externalized
+ // 'module' externalized
+
+const main = async () => {
+	const reactNs = await import("react-alias") // 'module' + 'import' externalized
+  const vueNs = await import("vue-alias") // 'import' externalized
+  const jqueryNs = await import("jquery-alias", { with: {"type":"url"} }) // import attributes should be preserved
+	console.log(__WEBPACK_EXTERNAL_MODULE_angular_alias_7d25287d__.angular, __WEBPACK_EXTERNAL_MODULE_react_alias_fd8b3826__.react, reactNs, vueNs, dyn, jqueryNs)
+}
+
+export { main };
+`;
+
+exports[`config config/library/modern-module-dynamic-import-runtime should pass 2`] = `
+import * as __WEBPACK_EXTERNAL_MODULE_react_alias_fd8b3826__ from "react-alias";
+import * as __WEBPACK_EXTERNAL_MODULE_angular_alias_7d25287d__ from "angular-alias";
+
+;// CONCATENATED MODULE: external "react-alias"
+
+;// CONCATENATED MODULE: external "angular-alias"
+
+;// CONCATENATED MODULE: ./main2.js
+ // 'module' + 'import' externalized
+ // 'module' externalized
+
+const main = async () => {
+	const reactNs = await import("react-alias") // 'module' + 'import' externalized
+  const vueNs = await import("vue-alias") // 'import' externalized
+  const jqueryNs = await import("jquery-alias", { with: {"type":"url"} }) // import attributes should be preserved
+	console.log(__WEBPACK_EXTERNAL_MODULE_angular_alias_7d25287d__.angular, __WEBPACK_EXTERNAL_MODULE_react_alias_fd8b3826__.react, reactNs, vueNs, dyn, jqueryNs)
+}
+
+export { main };
+`;
+
+exports[`config config/library/modern-module-dynamic-import-runtime should pass 3`] = `
+import * as __WEBPACK_EXTERNAL_MODULE_react_alias_fd8b3826__ from "react-alias";
+import * as __WEBPACK_EXTERNAL_MODULE_angular_alias_7d25287d__ from "angular-alias";
+
+;// CONCATENATED MODULE: external "react-alias"
+
+;// CONCATENATED MODULE: external "angular-alias"
+
+;// CONCATENATED MODULE: ./main2.js
+ // 'module' + 'import' externalized
+ // 'module' externalized
+
+const main = async () => {
+	const reactNs = await import("react-alias") // 'module' + 'import' externalized
+  const vueNs = await import("vue-alias") // 'import' externalized
+  const jqueryNs = await import("jquery-alias", { with: {"type":"url"} }) // import attributes should be preserved
+	console.log(__WEBPACK_EXTERNAL_MODULE_angular_alias_7d25287d__.angular, __WEBPACK_EXTERNAL_MODULE_react_alias_fd8b3826__.react, reactNs, vueNs, dyn, jqueryNs)
+}
+
+export { main };
+`;
