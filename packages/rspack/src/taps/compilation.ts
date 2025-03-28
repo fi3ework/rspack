@@ -168,7 +168,7 @@ export const createCompilationHooksRegisters: CreatePartialRegisters<
 											codeGenerationResult: new CodeGenerationResult(result),
 											moduleObject
 										},
-										{ __webpack_require__ }
+										{ __webpack_require__: __webpack_require__ }
 									),
 								"Compilation.hooks.executeModule"
 							);

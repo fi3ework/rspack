@@ -1,4 +1,5 @@
 import { type LibConfig, defineConfig } from "@rslib/core";
+import CircularDependencyPlugin from "circular-dependency-plugin";
 import prebundleConfig from "./prebundle.config.mjs";
 
 const externalFunction = ({ request }: { request?: string }, callback) => {
@@ -40,6 +41,15 @@ export default defineConfig({
 	lib: [
 		{
 			...commonLibConfig,
+			tools: {
+				rspack: {
+					output: {
+						library: {
+							type: "commonjs"
+						}
+					}
+				}
+			},
 			source: {
 				entry: {
 					index: "./src/index.ts"
@@ -48,70 +58,6 @@ export default defineConfig({
 			output: {
 				...commonLibConfig.output,
 				externals: [externalFunction, "./moduleFederationDefaultRuntime.js"]
-			},
-			footer: {
-				js: `
-				module.exports = rspack;
-				0 && (module.exports = {
-  BannerPlugin,
-  Compilation,
-  Compiler,
-  ContextReplacementPlugin,
-  CopyRspackPlugin,
-  CssExtractRspackPlugin,
-  DefinePlugin,
-  DllPlugin,
-  DllReferencePlugin,
-  DynamicEntryPlugin,
-  EntryOptionPlugin,
-  EntryPlugin,
-  EnvironmentPlugin,
-  EvalDevToolModulePlugin,
-  EvalSourceMapDevToolPlugin,
-  ExternalsPlugin,
-  HotModuleReplacementPlugin,
-  HtmlRspackPlugin,
-  IgnorePlugin,
-  LightningCssMinimizerRspackPlugin,
-  LoaderOptionsPlugin,
-  LoaderTargetPlugin,
-  ModuleFilenameHelpers,
-  MultiCompiler,
-  MultiStats,
-  NoEmitOnErrorsPlugin,
-  NormalModule,
-  NormalModuleReplacementPlugin,
-  ProgressPlugin,
-  ProvidePlugin,
-  RspackOptionsApply,
-  RuntimeGlobals,
-  RuntimeModule,
-  SourceMapDevToolPlugin,
-  Stats,
-  SwcJsMinimizerRspackPlugin,
-  Template,
-  ValidationError,
-  WebpackError,
-  WebpackOptionsApply,
-  config,
-  container,
-  electron,
-  experiments,
-  javascript,
-  library,
-  node,
-  optimize,
-  rspack,
-  rspackVersion,
-  sharing,
-  sources,
-  util,
-  version,
-  wasm,
-  web,
-  webworker
-});
-`
 			}
 		},
 		{
@@ -120,17 +66,6 @@ export default defineConfig({
 				entry: {
 					cssExtractLoader: "./src/builtin-plugin/css-extract/loader.ts"
 				}
-			},
-			footer: {
-				js: `0 && (module.exports = {
-  ABSOLUTE_PUBLIC_PATH,
-  AUTO_PUBLIC_PATH,
-  BASE_URI,
-  MODULE_TYPE,
-  SINGLE_DOT_PATH_SEGMENT,
-  hotLoader,
-  pitch
-});`
 			}
 		},
 		{
@@ -140,16 +75,20 @@ export default defineConfig({
 				entry: {
 					cssExtractHmr: "./src/runtime/cssExtractHmr.ts"
 				}
-			},
-			footer: {
-				js: `0 && (module.exports = {
-  cssReload,
-  normalizeUrl
-});`
 			}
 		}
 	],
 	output: {
 		target: "node"
+	},
+	tools: {
+		rspack: {
+			plugins: [
+				new CircularDependencyPlugin({
+					failOnError: false,
+					exclude: /node_modules/
+				})
+			]
+		}
 	}
 });
