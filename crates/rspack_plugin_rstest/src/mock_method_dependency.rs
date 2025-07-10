@@ -1,8 +1,9 @@
 use rspack_cacheable::{cacheable, cacheable_dyn, with::Skip};
 use rspack_core::{
-  AsContextDependency, AsModuleDependency, DependencyCodeGeneration, DependencyRange,
-  DependencyTemplate, DependencyTemplateType, DependencyType, InitFragmentExt, InitFragmentKey,
-  InitFragmentStage, NormalInitFragment, TemplateContext, TemplateReplaceSource,
+  import_statement, AsContextDependency, AsModuleDependency, ConditionalInitFragment,
+  DependencyCodeGeneration, DependencyId, DependencyRange, DependencyTemplate,
+  DependencyTemplateType, DependencyType, InitFragmentExt, InitFragmentKey, InitFragmentStage,
+  NormalInitFragment, RuntimeCondition, TemplateContext, TemplateReplaceSource,
 };
 use swc_core::common::Span;
 
@@ -16,12 +17,15 @@ pub struct MockMethodDependency {
   request: String,
   hoist: bool,
   method: MockMethod,
+  module_dep_id: Option<DependencyId>,
+  position: i32,
 }
 
 #[cacheable]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MockMethod {
   Mock,
+  DoMock,
   Unmock,
   Hoisted,
 }
@@ -33,6 +37,8 @@ impl MockMethodDependency {
     request: String,
     hoist: bool,
     method: MockMethod,
+    module_dep_id: Option<DependencyId>,
+    position: i32,
   ) -> Self {
     Self {
       call_expr_span,
@@ -40,6 +46,8 @@ impl MockMethodDependency {
       request,
       hoist,
       method,
+      module_dep_id,
+      position,
     }
   }
 }
@@ -71,7 +79,13 @@ impl DependencyTemplate for MockMethodDependencyTemplate {
     source: &mut TemplateReplaceSource,
     code_generatable_context: &mut TemplateContext,
   ) {
-    let TemplateContext { init_fragments, .. } = code_generatable_context;
+    let TemplateContext {
+      module,
+      runtime_requirements,
+      compilation,
+      init_fragments,
+      ..
+    } = code_generatable_context;
     let dep = dep
       .as_any()
       .downcast_ref::<MockMethodDependency>()
@@ -80,25 +94,53 @@ impl DependencyTemplate for MockMethodDependencyTemplate {
 
     let hoist_flag = match dep.method {
       MockMethod::Mock => "MOCK",
+      MockMethod::DoMock => "", // won't be used.
       MockMethod::Unmock => "UNMOCK",
       MockMethod::Hoisted => "HOISTED",
     };
 
     let mock_method = match dep.method {
-      MockMethod::Mock => "rstest_set_mock",
+      MockMethod::Mock => "rstest_mock",
+      MockMethod::DoMock => "rstest_doMock",
       MockMethod::Unmock => "rstest_unmock",
       MockMethod::Hoisted => "rstest_hoisted",
     };
 
-    if dep.hoist {
-      let init = NormalInitFragment::new(
-        format!("/* RSTEST:{hoist_flag}_PLACEHOLDER:{request} */;"),
-        InitFragmentStage::StageESMImports,
-        0,
-        InitFragmentKey::Const(format!("retest mock_hoist {request}")),
-        None,
-      );
-      init_fragments.push(init.boxed());
+    let stage = if dep.position == 0 {
+      InitFragmentStage::StageESMImports
+    } else {
+      InitFragmentStage::StageAsyncESMImports
+    };
+
+    let init = NormalInitFragment::new(
+      format!("/* RSTEST:{hoist_flag}_PLACEHOLDER:{request} */;"),
+      stage,
+      dep.position,
+      InitFragmentKey::Const(format!("rstest mock_hoist {request}")),
+      None,
+    );
+    init_fragments.push(init.boxed());
+
+    if dep.method == MockMethod::Mock {
+      let module_dep_id = dep.module_dep_id;
+      if let Some(module_dep_id) = module_dep_id {
+        let content: (String, String) = import_statement(
+          *module,
+          compilation,
+          runtime_requirements,
+          &module_dep_id,
+          request,
+          false,
+        );
+        init_fragments.push(Box::new(ConditionalInitFragment::new(
+          format!("{}{}", content.0, content.1),
+          InitFragmentStage::StageAsyncESMImports,
+          9999 + 1,
+          InitFragmentKey::ESMImport(format!("{}_{}", request, "mock")),
+          None,
+          RuntimeCondition::Boolean(true), // runtime_condition,
+        )));
+      }
     }
 
     // Start before hoist.
@@ -125,7 +167,7 @@ impl DependencyTemplate for MockMethodDependencyTemplate {
       range.end, // count the trailing semicolon
       range.end,
       if dep.hoist {
-        format!("/* RSTEST:{hoist_flag}_HOIST_END:{request} */")
+        format!("\n/* RSTEST:{hoist_flag}_HOIST_END:{request} */")
       } else {
         "".to_string()
       }

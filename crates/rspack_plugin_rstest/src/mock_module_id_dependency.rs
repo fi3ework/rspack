@@ -1,8 +1,9 @@
 use rspack_cacheable::{cacheable, cacheable_dyn};
 use rspack_core::{
-  AsContextDependency, Dependency, DependencyCategory, DependencyCodeGeneration, DependencyId,
-  DependencyRange, DependencyTemplate, DependencyTemplateType, DependencyType,
-  ExtendedReferencedExport, FactorizeInfo, ModuleDependency, ModuleGraph, ModuleGraphCacheArtifact,
+  AsContextDependency, ConditionalInitFragment, Dependency, DependencyCategory,
+  DependencyCodeGeneration, DependencyId, DependencyRange, DependencyTemplate,
+  DependencyTemplateType, DependencyType, ExtendedReferencedExport, FactorizeInfo, InitFragmentKey,
+  InitFragmentStage, ModuleDependency, ModuleGraph, ModuleGraphCacheArtifact, RuntimeCondition,
   RuntimeSpec, TemplateContext, TemplateReplaceSource,
 };
 
@@ -19,8 +20,11 @@ pub struct MockModuleIdDependency {
   factorize_info: FactorizeInfo,
   category: DependencyCategory,
   pub suffix: Option<String>,
+  hoist: bool,
+  exec: bool,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl MockModuleIdDependency {
   pub fn new(
     request: String,
@@ -29,6 +33,8 @@ impl MockModuleIdDependency {
     optional: bool,
     category: DependencyCategory,
     suffix: Option<String>,
+    hoist: bool,
+    exec: bool,
   ) -> Self {
     Self {
       range,
@@ -39,6 +45,8 @@ impl MockModuleIdDependency {
       factorize_info: Default::default(),
       category,
       suffix,
+      hoist,
+      exec,
     }
   }
 }
@@ -128,24 +136,35 @@ impl DependencyTemplate for MockModuleIdDependencyTemplate {
     source: &mut TemplateReplaceSource,
     code_generatable_context: &mut TemplateContext,
   ) {
+    let TemplateContext { init_fragments, .. } = code_generatable_context;
+
     let dep = dep
       .as_any()
       .downcast_ref::<MockModuleIdDependency>()
       .expect("MockModuleIdDependencyTemplate should only be used for MockModuleIdDependency");
 
+    let module_id = module_id_rstest(
+      code_generatable_context.compilation,
+      &dep.id,
+      &dep.request,
+      dep.weak,
+    );
+
+    if dep.hoist && dep.exec {
+      init_fragments.push(Box::new(ConditionalInitFragment::new(
+        format!("await __webpack_require__.retest_exec({module_id})\n"),
+        InitFragmentStage::StageAsyncESMImports,
+        9999 + 1,
+        InitFragmentKey::ESMImport(format!("{}_{}", module_id, "mock")),
+        None,
+        RuntimeCondition::Boolean(true), // runtime_condition,
+      )));
+    }
+
     source.replace(
       dep.range.start,
       dep.range.end,
-      &format!(
-        "{}{}",
-        module_id_rstest(
-          code_generatable_context.compilation,
-          &dep.id,
-          &dep.request,
-          dep.weak,
-        ),
-        dep.suffix.as_deref().unwrap_or("")
-      ),
+      &format!("{}{}", module_id, dep.suffix.as_deref().unwrap_or("")),
       None,
     );
   }
