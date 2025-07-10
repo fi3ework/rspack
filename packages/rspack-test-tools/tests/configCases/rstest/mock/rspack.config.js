@@ -34,7 +34,7 @@ __webpack_require__.rstest_import_actual = __webpack_require__.rstest_require_ac
   return beforeMock;
 }
 
-__webpack_require__.rstest_set_mock = (id, modFactory) => {
+__webpack_require__.rstest_mock = (id, modFactory) => {
   if (typeof modFactory === 'string' || typeof modFactory === 'number') {
     __webpack_require__.rstest_original_modules[id] = __webpack_require__(id);
     __webpack_module_cache__[id] = { exports: __webpack_require__(modFactory) };

@@ -43,6 +43,16 @@ pub struct RstestParserPlugin {
   pub manual_mock_root: String,
 }
 
+trait JavascriptParserExt<'a> {
+  fn handle_top_level_await(&mut self);
+}
+
+impl<'a> JavascriptParserExt<'a> for JavascriptParser<'a> {
+  fn handle_top_level_await(&mut self) {
+    self.build_meta.has_top_level_await = true;
+  }
+}
+
 impl RstestParserPlugin {
   pub fn new(
     module_path_name: bool,
@@ -200,6 +210,11 @@ impl RstestParserPlugin {
                 method,
               )));
 
+            if hoist {
+              parser.handle_top_level_await();
+              // self.build_meta.has_top_level_await = true;
+            }
+
             if let Some(mocked_target) = self.calc_mocked_target(&lit.value).as_std_path().to_str()
             {
               parser
@@ -262,6 +277,11 @@ impl RstestParserPlugin {
                 method,
               )));
 
+            if hoist {
+              parser.handle_top_level_await();
+              // self.build_meta.has_top_level_await = true;
+            }
+
             parser
               .dependencies
               .push(Box::new(MockModuleIdDependency::new(
@@ -299,6 +319,11 @@ impl RstestParserPlugin {
             true,
             MockMethod::Hoisted,
           )));
+
+        // if hoist {
+        //   parser.handle_top_level_await(self.hoist_mock_module, first_arg.span().into());
+        //   // self.build_meta.has_top_level_await = true;
+        // }
       }
       _ => {
         panic!("`rs.hoisted` function expects 1 argument, got more than 1");

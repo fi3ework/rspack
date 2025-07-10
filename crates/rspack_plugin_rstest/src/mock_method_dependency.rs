@@ -85,7 +85,7 @@ impl DependencyTemplate for MockMethodDependencyTemplate {
     };
 
     let mock_method = match dep.method {
-      MockMethod::Mock => "rstest_set_mock",
+      MockMethod::Mock => "rstest_mock",
       MockMethod::Unmock => "rstest_unmock",
       MockMethod::Hoisted => "rstest_hoisted",
     };

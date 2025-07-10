@@ -38,6 +38,7 @@ async fn finish_modules(&self, compilation: &mut Compilation) -> Result<()> {
   let mut async_modules = LinkedHashSet::default();
   for (module_identifier, module) in modules {
     let build_meta = module.build_meta();
+    // if build_meta.esm {
     if build_meta.has_top_level_await {
       async_modules.insert(module_identifier);
     } else {
