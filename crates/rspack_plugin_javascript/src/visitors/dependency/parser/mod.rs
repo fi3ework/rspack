@@ -233,7 +233,7 @@ pub struct JavascriptParser<'parser> {
   pub build_info: &'parser mut BuildInfo,
   pub resource_data: &'parser ResourceData,
   pub(crate) plugin_drive: Rc<JavaScriptParserPluginDrive>,
-  pub(crate) definitions_db: ScopeInfoDB,
+  pub definitions_db: ScopeInfoDB,
   pub(crate) compiler_options: &'parser CompilerOptions,
   pub(crate) javascript_options: &'parser JavascriptParserOptions,
   pub(crate) module_type: &'parser ModuleType,
