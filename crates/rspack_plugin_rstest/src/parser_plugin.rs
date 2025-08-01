@@ -9,7 +9,7 @@ use rspack_plugin_javascript::{
     self,
     eval::{self},
   },
-  visitors::JavascriptParser,
+  visitors::{JavascriptParser, Statement},
   JavascriptParserPlugin,
 };
 use rspack_util::{atom::Atom, json_stringify, swc::get_swc_comments};
@@ -513,6 +513,145 @@ impl RstestParserPlugin {
 }
 
 impl JavascriptParserPlugin for RstestParserPlugin {
+  fn statement(&self, parser: &mut JavascriptParser, stmt: Statement) -> Option<bool> {
+    if let Statement::Expr(expr_stmt) = stmt {
+      if let Some(call_expr) = expr_stmt.expr.as_call() {
+        if self.hoist_mock_module {
+          let expr = call_expr.callee.as_expr();
+          if let Some(expr) = expr {
+            let q = expr.as_member();
+            if let Some(q) = q {
+              if let Some(ident) = q.obj.as_ident() {
+                if let Some(prop) = q.prop.as_ident() {
+                  dbg!("😡:", ident, prop);
+
+                  match (ident.sym.as_str(), prop.sym.as_str()) {
+                    // rs.mock
+                    ("rs", "mock") | ("rstest", "mock") => {
+                      self.process_mock(
+                        parser,
+                        call_expr,
+                        true,
+                        true,
+                        MockMethod::Mock,
+                        true,
+                        true,
+                      );
+                      return Some(false);
+                    }
+                    // rs.mockRequire
+                    ("rs", "mockRequire") | ("rstest", "mockRequire") => {
+                      self.process_mock(
+                        parser,
+                        call_expr,
+                        true,
+                        false,
+                        MockMethod::Mock,
+                        true,
+                        false,
+                      );
+                      return Some(false);
+                    }
+                    // rs.doMock
+                    ("rs", "doMock") | ("rstest", "doMock") => {
+                      self.process_mock(
+                        parser,
+                        call_expr,
+                        false,
+                        true,
+                        MockMethod::DoMock,
+                        true,
+                        false,
+                      );
+                      return Some(false);
+                    }
+                    // rs.doMockRequire
+                    ("rs", "doMockRequire") | ("rstest", "doMockRequire") => {
+                      self.process_mock(
+                        parser,
+                        call_expr,
+                        false,
+                        false,
+                        MockMethod::Mock,
+                        true,
+                        false,
+                      );
+                      return Some(false);
+                    }
+                    // rs.importActual
+                    ("rs", "importActual") | ("rstest", "importActual") => {
+                      return self.process_import_actual(parser, call_expr);
+                    }
+                    // rs.requireActual
+                    ("rs", "requireActual") | ("rstest", "requireActual") => {
+                      self.process_require_actual(parser, call_expr);
+                      return Some(false);
+                    }
+                    // rs.importMock
+                    ("rs", "importMock") | ("rstest", "importMock") => {
+                      return self.load_mock(parser, call_expr, true);
+                    }
+                    // rs.requireMock
+                    ("rs", "requireMock") | ("rstest", "requireMock") => {
+                      return self.load_mock(parser, call_expr, false);
+                    }
+                    // rs.unmock
+                    ("rs", "unmock") | ("rstest", "unmock") => {
+                      self.process_mock(
+                        parser,
+                        call_expr,
+                        true,
+                        true,
+                        MockMethod::Unmock,
+                        false,
+                        false,
+                      );
+                      return Some(true);
+                    }
+                    // rs.doUnmock
+                    ("rs", "doUnmock") | ("rstest", "doUnmock") => {
+                      // return self.unmock_method(parser, call_expr, true);
+                      self.process_mock(
+                        parser,
+                        call_expr,
+                        false,
+                        true,
+                        MockMethod::Unmock,
+                        false,
+                        false,
+                      );
+                      return Some(true);
+                    }
+                    // rs.resetModules
+                    ("rs", "resetModules") | ("rstest", "resetModules") => {
+                      return self.reset_modules(parser, call_expr);
+                    }
+                    // rs.hoisted
+                    ("rs", "hoisted") | ("rstest", "hoisted") => {
+                      self.hoisted(parser, call_expr);
+                      return Some(true);
+                    }
+                    _ => {
+                      // Not a mock module, continue.
+                      return None;
+                    }
+                  }
+                }
+              }
+            } else {
+              return None;
+            }
+          }
+        }
+        return None;
+        // return Some(true);
+      }
+    }
+    // const is
+
+    Some(false)
+  }
+
   fn import_call(&self, parser: &mut JavascriptParser, call_expr: &CallExpr) -> Option<bool> {
     let first_arg = self.handle_mock_first_arg(parser, call_expr);
     if first_arg.is_some() {
@@ -538,122 +677,123 @@ impl JavascriptParserPlugin for RstestParserPlugin {
     _members_optionals: &[bool],
     _member_ranges: &[Span],
   ) -> Option<bool> {
-    if self.hoist_mock_module {
-      let expr = call_expr.callee.as_expr();
-      if let Some(expr) = expr {
-        let q = expr.as_member();
-        if let Some(q) = q {
-          if let Some(ident) = q.obj.as_ident() {
-            if let Some(prop) = q.prop.as_ident() {
-              match (ident.sym.as_str(), prop.sym.as_str()) {
-                // rs.mock
-                ("rs", "mock") | ("rstest", "mock") => {
-                  self.process_mock(parser, call_expr, true, true, MockMethod::Mock, true, true);
-                  return Some(false);
-                }
-                // rs.mockRequire
-                ("rs", "mockRequire") | ("rstest", "mockRequire") => {
-                  self.process_mock(
-                    parser,
-                    call_expr,
-                    true,
-                    false,
-                    MockMethod::Mock,
-                    true,
-                    false,
-                  );
-                  return Some(false);
-                }
-                // rs.doMock
-                ("rs", "doMock") | ("rstest", "doMock") => {
-                  self.process_mock(
-                    parser,
-                    call_expr,
-                    false,
-                    true,
-                    MockMethod::DoMock,
-                    true,
-                    false,
-                  );
-                  return Some(false);
-                }
-                // rs.doMockRequire
-                ("rs", "doMockRequire") | ("rstest", "doMockRequire") => {
-                  self.process_mock(
-                    parser,
-                    call_expr,
-                    false,
-                    false,
-                    MockMethod::Mock,
-                    true,
-                    false,
-                  );
-                  return Some(false);
-                }
-                // rs.importActual
-                ("rs", "importActual") | ("rstest", "importActual") => {
-                  return self.process_import_actual(parser, call_expr);
-                }
-                // rs.requireActual
-                ("rs", "requireActual") | ("rstest", "requireActual") => {
-                  return self.process_require_actual(parser, call_expr);
-                }
-                // rs.importMock
-                ("rs", "importMock") | ("rstest", "importMock") => {
-                  return self.load_mock(parser, call_expr, true);
-                }
-                // rs.requireMock
-                ("rs", "requireMock") | ("rstest", "requireMock") => {
-                  return self.load_mock(parser, call_expr, false);
-                }
-                // rs.unmock
-                ("rs", "unmock") | ("rstest", "unmock") => {
-                  self.process_mock(
-                    parser,
-                    call_expr,
-                    true,
-                    true,
-                    MockMethod::Unmock,
-                    false,
-                    false,
-                  );
-                  return Some(true);
-                }
-                // rs.doUnmock
-                ("rs", "doUnmock") | ("rstest", "doUnmock") => {
-                  // return self.unmock_method(parser, call_expr, true);
-                  self.process_mock(
-                    parser,
-                    call_expr,
-                    false,
-                    true,
-                    MockMethod::Unmock,
-                    false,
-                    false,
-                  );
-                  return Some(true);
-                }
-                // rs.resetModules
-                ("rs", "resetModules") | ("rstest", "resetModules") => {
-                  return self.reset_modules(parser, call_expr);
-                }
-                // rs.hoisted
-                ("rs", "hoisted") | ("rstest", "hoisted") => {
-                  self.hoisted(parser, call_expr);
-                  return Some(true);
-                }
-                _ => {
-                  // Not a mock module, continue.
-                  return None;
-                }
-              }
-            }
-          }
-        } else {
-          return None;
-        }
-      }
-    }
+    dbg!("🟢 call_member_chain", call_expr);
+    //     let expr = call_expr.callee.as_expr();
+    //     if let Some(expr) = expr {
+    //       let q = expr.as_member();
+    //       if let Some(q) = q {
+    //         dbg!("🤡");
+    //         if let Some(ident) = q.obj.as_ident() {
+    //           if let Some(prop) = q.prop.as_ident() {
+    //             match (ident.sym.as_str(), prop.sym.as_str()) {
+    //               // rs.mock
+    //               ("rs", "mock") | ("rstest", "mock") => {
+    //                 self.process_mock(parser, call_expr, true, true, MockMethod::Mock, true, true);
+    //                 return Some(false);
+    //               }
+    //               // rs.mockRequire
+    //               ("rs", "mockRequire") | ("rstest", "mockRequire") => {
+    //                 self.process_mock(
+    //                   parser,
+    //                   call_expr,
+    //                   true,
+    //                   false,
+    //                   MockMethod::Mock,
+    //                   true,
+    //                   false,
+    //                 );
+    //                 return Some(false);
+    //               }
+    //               // rs.doMock
+    //               ("rs", "doMock") | ("rstest", "doMock") => {
+    //                 self.process_mock(
+    //                   parser,
+    //                   call_expr,
+    //                   false,
+    //                   true,
+    //                   MockMethod::DoMock,
+    //                   true,
+    //                   false,
+    //                 );
+    //                 return Some(false);
+    //               }
+    //               // rs.doMockRequire
+    //               ("rs", "doMockRequire") | ("rstest", "doMockRequire") => {
+    //                 self.process_mock(
+    //                   parser,
+    //                   call_expr,
+    //                   false,
+    //                   false,
+    //                   MockMethod::Mock,
+    //                   true,
+    //                   false,
+    //                 );
+    //                 return Some(false);
+    //               }
+    //               // rs.importActual
+    //               ("rs", "importActual") | ("rstest", "importActual") => {
+    //                 return self.process_import_actual(parser, call_expr);
+    //               }
+    //               // rs.requireActual
+    //               ("rs", "requireActual") | ("rstest", "requireActual") => {
+    //                 return self.process_require_actual(parser, call_expr);
+    //               }
+    //               // rs.importMock
+    //               ("rs", "importMock") | ("rstest", "importMock") => {
+    //                 return self.load_mock(parser, call_expr, true);
+    //               }
+    //               // rs.requireMock
+    //               ("rs", "requireMock") | ("rstest", "requireMock") => {
+    //                 return self.load_mock(parser, call_expr, false);
+    //               }
+    //               // rs.unmock
+    //               ("rs", "unmock") | ("rstest", "unmock") => {
+    //                 self.process_mock(
+    //                   parser,
+    //                   call_expr,
+    //                   true,
+    //                   true,
+    //                   MockMethod::Unmock,
+    //                   false,
+    //                   false,
+    //                 );
+    //                 return Some(true);
+    //               }
+    //               // rs.doUnmock
+    //               ("rs", "doUnmock") | ("rstest", "doUnmock") => {
+    //                 // return self.unmock_method(parser, call_expr, true);
+    //                 self.process_mock(
+    //                   parser,
+    //                   call_expr,
+    //                   false,
+    //                   true,
+    //                   MockMethod::Unmock,
+    //                   false,
+    //                   false,
+    //                 );
+    //                 return Some(true);
+    //               }
+    //               // rs.resetModules
+    //               ("rs", "resetModules") | ("rstest", "resetModules") => {
+    //                 return self.reset_modules(parser, call_expr);
+    //               }
+    //               // rs.hoisted
+    //               ("rs", "hoisted") | ("rstest", "hoisted") => {
+    //                 self.hoisted(parser, call_expr);
+    //                 return Some(true);
+    //               }
+    //               _ => {
+    //                 // Not a mock module, continue.
+    //                 return None;
+    //               }
+    //             }
+    //           }
+    //         }
+    //       } else {
+    //         return None;
+    //       }
+    //     }
+    //   }
     None
   }
 

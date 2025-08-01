@@ -136,8 +136,6 @@ impl DependencyTemplate for MockModuleIdDependencyTemplate {
     source: &mut TemplateReplaceSource,
     code_generatable_context: &mut TemplateContext,
   ) {
-    let TemplateContext { init_fragments, .. } = code_generatable_context;
-
     let dep = dep
       .as_any()
       .downcast_ref::<MockModuleIdDependency>()
@@ -149,18 +147,6 @@ impl DependencyTemplate for MockModuleIdDependencyTemplate {
       &dep.request,
       dep.weak,
     );
-
-    if dep.hoist && dep.await_factory {
-      // Await exec init fragment.
-      init_fragments.push(Box::new(ConditionalInitFragment::new(
-        format!("await __webpack_require__.rstest_exec({module_id})\n"),
-        InitFragmentStage::StageAsyncESMImports,
-        i32::MAX - 1,
-        InitFragmentKey::ESMImport(format!("{}_{}", module_id, "mock")),
-        None,
-        RuntimeCondition::Boolean(true),
-      )));
-    }
 
     source.replace(
       dep.range.start,
